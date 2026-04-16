@@ -2,8 +2,7 @@ mod commands;
 mod ffmpeg;
 mod models;
 
-use commands::{cancel_conversion, convert_file, dispatch_conversion, get_ffmpeg_path, get_settings, probe_file, save_settings, ActiveJobs};
-use models::ConversionSettings;
+use commands::{cancel_conversion, convert_file, dispatch_conversion, get_ffmpeg_path, get_settings, load_settings, probe_file, save_settings, ActiveJobs};
 use tauri::{Emitter, Manager};
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
@@ -56,8 +55,8 @@ pub fn run() {
                     let _ = window.emit("file-opened", &paths);
                 }
 
-                // Load settings — Phase 4 will replace this with a persistent store lookup.
-                let settings = ConversionSettings::default();
+                // Load persisted settings; falls back to defaults if none saved yet.
+                let settings = load_settings(app);
 
                 // Dispatch one conversion job per file.  Each runs in its own async task so
                 // multiple dock drops execute concurrently.

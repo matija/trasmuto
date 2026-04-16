@@ -1,6 +1,4 @@
-use crate::models::{AudioCodec, ConversionSettings, EncodingPreset, MaxResolution, VideoCodec};
-
-// TODO Phase 2: construct full ffmpeg arg list from ConversionSettings
+use crate::models::{AudioCodec, ConversionSettings, MaxResolution, VideoCodec};
 
 pub fn build_args(
     input: &str,
@@ -78,4 +76,127 @@ pub fn build_args(
     args.push(output.to_string());
 
     args
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::{AudioCodec, ConversionSettings, EncodingPreset, MaxResolution, VideoCodec};
+
+    fn default_settings() -> ConversionSettings {
+        ConversionSettings::default()
+    }
+
+    fn args_for(settings: ConversionSettings) -> Vec<String> {
+        build_args("/in/video.mkv", "/in/video.mp4", &settings)
+    }
+
+    #[test]
+    fn h264_includes_crf_and_preset() {
+        let args = args_for(ConversionSettings {
+            video_codec: VideoCodec::H264,
+            crf: 23,
+            preset: EncodingPreset::Medium,
+            ..default_settings()
+        });
+        assert!(args.windows(2).any(|w| w == ["-c:v", "libx264"]));
+        assert!(args.windows(2).any(|w| w == ["-crf", "23"]));
+        assert!(args.windows(2).any(|w| w == ["-preset", "medium"]));
+    }
+
+    #[test]
+    fn h264_hw_has_no_crf_or_preset() {
+        let args = args_for(ConversionSettings {
+            video_codec: VideoCodec::H264Hw,
+            ..default_settings()
+        });
+        assert!(args.windows(2).any(|w| w == ["-c:v", "h264_videotoolbox"]));
+        assert!(!args.iter().any(|a| a == "-crf"));
+        assert!(!args.iter().any(|a| a == "-preset"));
+    }
+
+    #[test]
+    fn h265_uses_libx265() {
+        let args = args_for(ConversionSettings {
+            video_codec: VideoCodec::H265,
+            ..default_settings()
+        });
+        assert!(args.windows(2).any(|w| w == ["-c:v", "libx265"]));
+    }
+
+    #[test]
+    fn copy_codec_passes_through() {
+        let args = args_for(ConversionSettings {
+            video_codec: VideoCodec::Copy,
+            ..default_settings()
+        });
+        assert!(args.windows(2).any(|w| w == ["-c:v", "copy"]));
+    }
+
+    #[test]
+    fn resolution_limit_adds_scale_filter() {
+        let args = args_for(ConversionSettings {
+            max_resolution: MaxResolution::Fhd1080p,
+            ..default_settings()
+        });
+        assert!(args.iter().any(|a| a == "-vf"));
+        assert!(args.iter().any(|a| a.contains("1920")));
+    }
+
+    #[test]
+    fn no_resolution_limit_omits_scale_filter() {
+        let args = args_for(ConversionSettings {
+            max_resolution: MaxResolution::None,
+            ..default_settings()
+        });
+        assert!(!args.iter().any(|a| a == "-vf"));
+    }
+
+    #[test]
+    fn aac_audio_includes_bitrate() {
+        let args = args_for(ConversionSettings {
+            audio_codec: AudioCodec::Aac,
+            audio_bitrate: 128,
+            ..default_settings()
+        });
+        assert!(args.windows(2).any(|w| w == ["-c:a", "aac"]));
+        assert!(args.windows(2).any(|w| w == ["-b:a", "128k"]));
+    }
+
+    #[test]
+    fn strip_audio_emits_an_flag() {
+        let args = args_for(ConversionSettings {
+            audio_codec: AudioCodec::None,
+            ..default_settings()
+        });
+        assert!(args.iter().any(|a| a == "-an"));
+    }
+
+    #[test]
+    fn copy_audio_passes_through() {
+        let args = args_for(ConversionSettings {
+            audio_codec: AudioCodec::Copy,
+            ..default_settings()
+        });
+        assert!(args.windows(2).any(|w| w == ["-c:a", "copy"]));
+    }
+
+    #[test]
+    fn always_includes_faststart() {
+        let args = args_for(default_settings());
+        assert!(args.windows(2).any(|w| w == ["-movflags", "+faststart"]));
+    }
+
+    #[test]
+    fn output_path_is_last_arg() {
+        let args = build_args("/in/video.mkv", "/out/video.mp4", &default_settings());
+        assert_eq!(args.last().map(String::as_str), Some("/out/video.mp4"));
+    }
+
+    #[test]
+    fn input_is_after_dash_i() {
+        let args = build_args("/in/video.mkv", "/out/video.mp4", &default_settings());
+        let i_pos = args.iter().position(|a| a == "-i").expect("-i missing");
+        assert_eq!(args[i_pos + 1], "/in/video.mkv");
+    }
 }

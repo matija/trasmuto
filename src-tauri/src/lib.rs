@@ -1,6 +1,6 @@
 mod commands;
-mod ffmpeg;
-mod models;
+pub mod ffmpeg;
+pub mod models;
 
 use commands::{cancel_conversion, convert_file, dispatch_conversion, get_ffmpeg_path, get_settings, load_settings, probe_file, save_settings, ActiveJobs};
 use tauri::{Emitter, Manager};

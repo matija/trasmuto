@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- macOS-style subtle top-to-bottom gradient on the system blue -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3AA0FF"/>
+      <stop offset="100%" stop-color="#0A84FF"/>
+    </linearGradient>
+
+    <!-- Very soft inner highlight to give the icon depth -->
+    <radialGradient id="highlight" cx="0.5" cy="0.0" r="0.9">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Squircle-ish rounded square (macOS Big Sur icons use ~22.5% radius) -->
+  <rect x="0" y="0" width="1024" height="1024" rx="230" ry="230" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="230" ry="230" fill="url(#highlight)"/>
+
+  <!-- Phosphor "swap" (bold weight), centered and scaled to ~58% of canvas.
+       Original viewBox is 0 0 256 256; we translate so the 256 glyph is centered
+       inside a 600x600 area of the 1024 canvas. -->
+  <g transform="translate(212 212) scale(2.34375)" stroke="#FFFFFF" stroke-width="24"
+     stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M84,160H208a8,8,0,0,0,8-8V48a8,8,0,0,0-8-8H96a8,8,0,0,0-8,8v4"/>
+    <polyline points="104 140 84 160 104 180"/>
+    <path d="M172,96H48a8,8,0,0,0-8,8V208a8,8,0,0,0,8,8H160a8,8,0,0,0,8-8v-4"/>
+    <polyline points="152 116 172 96 152 76"/>
+  </g>
+</svg>

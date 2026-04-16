@@ -2,7 +2,7 @@ mod commands;
 mod ffmpeg;
 mod models;
 
-use commands::{cancel_conversion, convert_file, get_ffmpeg_path, get_settings, probe_file, save_settings};
+use commands::{cancel_conversion, convert_file, get_ffmpeg_path, get_settings, probe_file, save_settings, ActiveJobs};
 use tauri::{Emitter, Manager};
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
@@ -12,6 +12,7 @@ const SUPPORTED_EXTENSIONS: &[&str] = &[
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(ActiveJobs::default())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_store::Builder::new().build())

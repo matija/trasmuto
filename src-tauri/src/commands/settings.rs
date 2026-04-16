@@ -16,7 +16,6 @@ pub async fn save_settings(settings: ConversionSettings) -> Result<(), String> {
 
 #[tauri::command]
 pub async fn get_ffmpeg_path() -> Result<Option<String>, String> {
-    // TODO Phase 2: use ffmpeg::finder to resolve binary path
-    println!("[stub] get_ffmpeg_path");
-    Ok(None)
+    use crate::ffmpeg::finder;
+    Ok(finder::find_ffmpeg(None))
 }

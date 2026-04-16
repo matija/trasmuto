@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
   workflow_dispatch:
 
 jobs:
@@ -14,6 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -23,6 +25,8 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -32,10 +36,21 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Detect prerelease
+        id: check_prerelease
+        run: |
+          if [[ "${{ github.ref_name }}" =~ -(beta|alpha|rc) ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and release
+        id: tauri_build
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Code signing secrets — optional; build is unsigned without them
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
@@ -45,8 +60,14 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'Trasmuto ${{ github.ref_name }}'
-          releaseBody: |
-            See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
-          releaseDraft: true
-          prerelease: false
+          releaseBody: 'See the assets below to download this version.'
+          releaseDraft: false
+          prerelease: ${{ steps.check_prerelease.outputs.prerelease }}
           includeDebug: false
+
+      - name: Mark release draft on failure
+        if: failure()
+        run: |
+          gh release edit "${{ github.ref_name }}" --draft=true || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

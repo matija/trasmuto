@@ -86,3 +86,17 @@
   - Creates a draft GitHub Release with tag name + artifacts attached
 - Icons already existed from scaffold phase; no regeneration needed
 - cargo build succeeds with 0 errors
+
+## Phase 8 — Tests (DONE)
+
+- 25 unit tests added across three Rust modules:
+  - commands/convert.rs: 5 tests for make_output_path (non-mp4 keeps stem, mp4 gets -converted suffix, output in same dir, dots in stem, .mov input)
+  - ffmpeg/builder.rs: 12 tests covering H.264/H.265/HW/Copy codecs, CRF/preset presence, resolution scale filter, AAC/copy/strip audio, faststart flag, arg ordering
+  - ffmpeg/progress.rs: 8 tests for parse_progress_line, parse_out_time_ms, and parse_speed (valid values, N/A, x-suffix stripping)
+- 2 integration tests in src-tauri/tests/conversion.rs:
+  - non_mp4_input_creates_output_in_same_folder: generates a real .mkv with ffmpeg lavfi, converts it, asserts sample.mp4 appears in the same temp dir
+  - mp4_input_creates_converted_suffix_in_same_folder: same but .mp4 input, asserts sample-converted.mp4 is created without overwriting the original
+- Added tempfile = "3" as dev-dependency for temp directory management in integration tests
+- Made models and ffmpeg modules pub in lib.rs so integration tests can access ConversionSettings and build_args
+- Made make_output_path pub(crate) so unit tests within convert.rs can access it
+- All 27 tests pass with 0 warnings

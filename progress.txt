@@ -73,4 +73,16 @@
 - `.setup()` block in lib.rs calls `app.notification().request_permission()` on first launch
 - cargo build succeeds with 0 errors
 
-## Next: Phase 7 — Build & Distribution
+## Phase 7 — Build & Distribution (DONE)
+
+- Added `fileAssociations` to `bundle` in tauri.conf.json:
+  - All 11 supported video extensions registered as "Video File" with role "Editor"
+  - Enables macOS to associate these file types with Trasmuto after `.app` install
+  - This makes dock-drop and "Open With" work for installed builds
+- Created `.github/workflows/release.yml` using `tauri-apps/tauri-action@v0`:
+  - Triggers on `v*` tags (push) and manual `workflow_dispatch`
+  - Runs on `macos-latest`; uses Node 22, stable Rust, rust-cache for fast rebuilds
+  - Env vars for optional Apple code signing + notarization (APPLE_CERTIFICATE, APPLE_ID, etc.) — secrets are optional; workflow still produces unsigned `.app`/`.dmg` without them
+  - Creates a draft GitHub Release with tag name + artifacts attached
+- Icons already existed from scaffold phase; no regeneration needed
+- cargo build succeeds with 0 errors

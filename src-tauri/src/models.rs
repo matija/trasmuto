@@ -78,36 +78,6 @@ pub enum AudioCodec {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ConversionJob {
-    pub id: String,
-    pub input_path: String,
-    pub output_path: String,
-    pub status: JobStatus,
-    pub progress_pct: Option<f64>,
-    pub speed: Option<f64>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum JobStatus {
-    Pending,
-    Running,
-    Done,
-    Failed,
-    Cancelled,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ConversionProgress {
-    pub job_id: String,
-    pub out_time_ms: u64,
-    pub speed: f64,
-    pub done: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct FileInfo {
     pub path: String,
     pub duration_ms: Option<u64>,

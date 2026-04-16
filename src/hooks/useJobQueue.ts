@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { create } from 'zustand';
 import type { ConversionJob } from '../lib/types';
 import {
+  cancelConversion,
   onConversionProgress,
   onConversionComplete,
   onConversionError,
@@ -9,7 +10,6 @@ import {
   probeFile,
   takePendingJobStarts,
 } from '../lib/tauri-commands';
-import { cancelConversion } from '../lib/tauri-commands';
 
 interface JobQueueStore {
   jobs: ConversionJob[];

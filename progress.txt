@@ -101,6 +101,14 @@
 - Made make_output_path pub(crate) so unit tests within convert.rs can access it
 - All 27 tests pass with 0 warnings
 
+## Phase 16 — CI Gate Before Release (DONE)
+
+- Implemented R6 via Option B (deferred/branch protection)
+- Added a NOTE comment to `release.yml` explaining that the CI gate is enforced via branch protection on `main`, not an inline job dependency
+- Added "Releasing" section to `README.md` with step-by-step release instructions and a one-time branch protection setup guide (require `ci` status check on `main`)
+- Updated `PRD.md` Phase 4 to record the decision and close out the requirement
+- All PRD requirements (R1–R6) are now satisfied
+
 ## Phase 15 — Release Body Tag Name (DONE)
 
 - Updated `releaseBody` in `release.yml` to include the tag name: `Release ${{ github.ref_name }}. See the assets below to download this version.`

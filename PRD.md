@@ -106,8 +106,8 @@ Add a bash step to `release.yml` that parses `tauri.conf.json` and `Cargo.toml`,
 ### Phase 3 — Verify GitHub Release publication (R3, R4, R5)
 Smoke-test the existing `tauri-apps/tauri-action` setup by cutting a test tag. Fix any issues found. Confirm release appears on the Releases tab with a `.dmg` asset. Confirm pre-release tags show the pre-release badge.
 
-### Phase 4 — CI gate (R6)
-Decide and implement option A or B. Document in `README.md` under a "Releasing" section.
+### Phase 4 — CI gate (R6) — DONE (Option B)
+Option B implemented: a branch protection rule on `main` requiring the `ci` status check is documented in `README.md` under the "Releasing" section as a manual one-time repo setup step. A `NOTE:` comment in `release.yml` explains the dependency and why tag pushes from `main` are safe without an inline CI job.
 
 ---
 

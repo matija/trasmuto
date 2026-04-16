@@ -38,4 +38,12 @@
   - Spawns one `tauri::async_runtime::spawn` per file, calling `dispatch_conversion`
 - cargo build succeeds with 0 errors
 
-## Next: Phase 4 — Settings Persistence
+## Phase 4 — Settings Persistence (DONE)
+
+- settings.rs: `get_settings` and `save_settings` now backed by `tauri-plugin-store` (settings.json)
+- `load_settings(app: &AppHandle) -> ConversionSettings` helper added — sync, falls back to defaults
+- Exported `load_settings` from commands/mod.rs
+- `RunEvent::Opened` in lib.rs now calls `load_settings(app)` instead of `ConversionSettings::default()`
+- cargo build succeeds with 0 errors
+
+## Next: Phase 5 — Frontend UI

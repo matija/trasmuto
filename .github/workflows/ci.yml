@@ -50,3 +50,23 @@ jobs:
 
       - name: Tauri build
         run: npx tauri build --target aarch64-apple-darwin
+
+  tag:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version and push tag
+        run: |
+          VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          TAG="v${VERSION}"
+          if git ls-remote --tags origin "$TAG" | grep -q "$TAG"; then
+            echo "Tag $TAG already exists, skipping."
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi

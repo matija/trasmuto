@@ -46,4 +46,22 @@
 - `RunEvent::Opened` in lib.rs now calls `load_settings(app)` instead of `ConversionSettings::default()`
 - cargo build succeeds with 0 errors
 
-## Next: Phase 5 — Frontend UI
+## Phase 5 — Frontend UI (DONE)
+
+- Installed Tailwind CSS v4 via @tailwindcss/vite plugin; dark macOS-like theme (zinc palette + sky accent)
+- src/lib/types.ts — TypeScript types mirroring all Rust models (ConversionJob, ConversionSettings, enums, FileInfo)
+- src/lib/tauri-commands.ts — typed invoke() + listen() wrappers for all 6 commands and 5 events
+- src/hooks/useJobQueue.ts — Zustand store; subscribes to job-started / conversion-progress / conversion-complete / conversion-error;
+  probes file on job-started to get durationMs for accurate progress percentage; exposes cancelJob
+- src/hooks/useConversionSettings.ts — loads settings from store on mount, saves on every change
+- src/components/JobItem.tsx — filename, status badge (Pending/Converting/Done/Failed/Cancelled), progress bar
+  (determinate when duration known, animated indeterminate otherwise), speed indicator, Reveal/Cancel buttons
+- src/components/JobQueue.tsx — scrollable job list; empty state with icon; "Clear completed" footer
+- src/components/SettingsPanel.tsx — all settings as selects/slider; CRF/preset rows hidden for HW/copy codecs;
+  auto-saves on every change
+- src/App.tsx — overlay title bar with drag region; Queue/Settings tab buttons; switches to Queue on file-opened event
+- src/index.css — @import "tailwindcss"; .drag/.no-drag utilities; progress-slide keyframe for indeterminate bar
+- lib.rs: emit job-started {jobId, inputPath} after dispatch_conversion so frontend can show file names
+- cargo build and tsc --noEmit both pass with 0 errors
+
+## Next: Phase 6 — Notifications

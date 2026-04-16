@@ -1,0 +1,16 @@
+## Phase 1 — Scaffold (DONE)
+
+- Scaffolded Tauri v2 + React 19 + TypeScript project using create-tauri-app
+- Renamed app to "Trasmuto" in Cargo.toml, tauri.conf.json, main.rs
+- Configured window: 600×500, overlay title bar, hidden title, macOS-native feel
+- Added Tauri plugins: notification, store, dialog (Cargo + npm)
+- Added Zustand to npm dependencies
+- Created full Rust module structure:
+  - src/models.rs — ConversionSettings, ConversionJob, ConversionProgress, FileInfo, all enums
+  - src/commands/{convert,probe,settings,mod}.rs — all 6 commands stubbed (return dummy data)
+  - src/ffmpeg/{finder,builder,progress,mod}.rs — binary discovery + arg builder + progress parser stubs
+- Wired RunEvent::Opened: filters supported video extensions, logs paths, emits file-opened event, shows/focuses window
+- Updated capabilities/default.json with new plugin permissions
+- Verified: cargo build succeeds with 0 errors
+
+## Next: Phase 2 — ffmpeg Core

@@ -101,6 +101,11 @@
 - Made make_output_path pub(crate) so unit tests within convert.rs can access it
 - All 27 tests pass with 0 warnings
 
+## Phase 15 — Release Body Tag Name (DONE)
+
+- Updated `releaseBody` in `release.yml` to include the tag name: `Release ${{ github.ref_name }}. See the assets below to download this version.`
+- Satisfies R3 acceptance criterion: release body includes the tag name and a note directing users to the assets section
+
 ## Phase 14 — Version Consistency Check (DONE)
 
 - Added `Verify version consistency` step to `release.yml` before the build steps

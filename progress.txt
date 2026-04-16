@@ -25,4 +25,17 @@
 - lib.rs: registers ActiveJobs::default() as Tauri managed state
 - cargo build succeeds with 0 errors
 
-## Next: Phase 3 — Dock Drop Integration
+## Phase 3 — Dock Drop Integration (DONE)
+
+- Extracted `dispatch_conversion(input_path, settings, app)` from `convert_file` in convert.rs
+  — both the Tauri command and the dock-drop handler share the same ffmpeg spawn logic
+- `convert_file` command now delegates to `dispatch_conversion` (uses app.state() internally)
+- `dispatch_conversion` exported via commands/mod.rs
+- `RunEvent::Opened` handler in lib.rs now:
+  - Parses file:// URLs and filters by supported extension (unchanged)
+  - Shows + focuses main window and emits `file-opened` to frontend (unchanged)
+  - Loads `ConversionSettings::default()` (Phase 4 will replace with store lookup)
+  - Spawns one `tauri::async_runtime::spawn` per file, calling `dispatch_conversion`
+- cargo build succeeds with 0 errors
+
+## Next: Phase 4 — Settings Persistence

@@ -100,3 +100,17 @@
 - Made models and ffmpeg modules pub in lib.rs so integration tests can access ConversionSettings and build_args
 - Made make_output_path pub(crate) so unit tests within convert.rs can access it
 - All 27 tests pass with 0 warnings
+
+## Phase 9 — Frontend Tests (DONE)
+
+- Installed vitest 4, @testing-library/react, @testing-library/jest-dom, jsdom as devDependencies
+- Created vitest.config.ts: jsdom environment, globals: true, test-setup.ts setupFile
+- Added "test" and "typecheck" scripts to package.json
+- Added "vitest/globals" and "@testing-library/jest-dom" types to tsconfig.json
+- 13 frontend unit tests across 5 files:
+  - src/lib/tauri-commands.test.ts: 4 tests verifying convertFile, cancelConversion, getSettings, saveSettings each call invoke() with the correct command name and arguments
+  - src/hooks/useConversionSettings.test.ts: 2 tests — getSettings called on mount, saveSettings called with updated value on update()
+  - src/hooks/useJobQueue.test.ts: 4 tests — conversion-progress updates outTimeMs/speed/status, conversion-complete sets done+outputPath, conversion-error sets failed+error, cancelJob calls cancelConversion and marks job cancelled
+  - src/components/JobItem.test.tsx: 2 smoke tests — running job shows filename/progress bar/speed/cancel button, done job shows Done badge and Reveal button
+  - src/components/SettingsPanel.test.tsx: 1 smoke test — all 6 setting controls visible with default settings (h264, aac)
+- All 13 tests pass with npm run test

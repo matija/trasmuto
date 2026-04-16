@@ -1,5 +1,59 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Native macOS color tokens.  The window itself is transparent and the Rust
+   side applies the `Sidebar` vibrancy material, so the body is see-through
+   and these tokens only carry the thin on-top layer (text, dividers, chrome).
+   They follow the system light/dark appearance automatically.
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light dark;
+
+  /* Light mode (default) */
+  --fg: rgba(0, 0, 0, 0.85);
+  --fg-muted: rgba(0, 0, 0, 0.55);
+  --fg-faint: rgba(0, 0, 0, 0.35);
+  --divider: rgba(0, 0, 0, 0.08);
+  --surface: rgba(255, 255, 255, 0.5);
+  --surface-strong: rgba(255, 255, 255, 0.75);
+  --control-bg: rgba(255, 255, 255, 0.6);
+  --control-border: rgba(0, 0, 0, 0.1);
+  --segmented-bg: rgba(0, 0, 0, 0.07);
+  --segmented-active-bg: rgba(255, 255, 255, 0.95);
+  --segmented-active-border: rgba(0, 0, 0, 0.08);
+  --accent: #0a84ff; /* macOS system blue (dynamic) */
+  --accent-bg: rgba(10, 132, 255, 0.12);
+  --progress-track: rgba(0, 0, 0, 0.08);
+  --danger: #ff453a;
+  --danger-bg: rgba(255, 69, 58, 0.12);
+  --success: #30d158;
+  --success-bg: rgba(48, 209, 88, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: rgba(255, 255, 255, 0.9);
+    --fg-muted: rgba(255, 255, 255, 0.55);
+    --fg-faint: rgba(255, 255, 255, 0.35);
+    --divider: rgba(255, 255, 255, 0.08);
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-strong: rgba(255, 255, 255, 0.08);
+    --control-bg: rgba(255, 255, 255, 0.08);
+    --control-border: rgba(255, 255, 255, 0.12);
+    --segmented-bg: rgba(255, 255, 255, 0.08);
+    --segmented-active-bg: rgba(255, 255, 255, 0.16);
+    --segmented-active-border: rgba(255, 255, 255, 0.12);
+    --accent: #0a84ff;
+    --accent-bg: rgba(10, 132, 255, 0.18);
+    --progress-track: rgba(255, 255, 255, 0.1);
+    --danger: #ff453a;
+    --danger-bg: rgba(255, 69, 58, 0.15);
+    --success: #30d158;
+    --success-bg: rgba(48, 209, 88, 0.18);
+  }
+}
+
 @layer base {
   html,
   body,
@@ -7,8 +61,11 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
+    color: var(--fg);
+    /* Fully transparent so macOS vibrancy (Sidebar material) shines through. */
+    background: transparent;
   }
 }
 
@@ -34,5 +91,20 @@
   .animate-progress-indeterminate {
     width: 40%;
     animation: progress-slide 1.4s ease-in-out infinite;
+  }
+}
+
+/* Native-looking scrollbars — thin, fade on idle */
+@layer base {
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--fg-faint);
+    border-radius: 4px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
   }
 }

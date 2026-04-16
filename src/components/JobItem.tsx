@@ -25,15 +25,17 @@ export default function JobItem({ job, onCancel }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-1.5 px-4 py-3 border-b border-zinc-800 last:border-0">
-      {/* Top row: filename + controls */}
+    <div className="flex flex-col gap-1.5 px-3 py-2.5 mx-1 rounded-lg hover:bg-[color:var(--surface)] transition-colors">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium text-zinc-100 truncate" title={job.inputPath}>
+        <span
+          className="text-[13px] font-medium text-[color:var(--fg)] truncate"
+          title={job.inputPath}
+        >
           {filename}
         </span>
         <div className="flex items-center gap-2 shrink-0">
           {job.status === 'running' && job.speed != null && (
-            <span className="text-xs text-zinc-400 tabular-nums">
+            <span className="text-[11px] text-[color:var(--fg-muted)] tabular-nums">
               {job.speed.toFixed(1)}&times;
             </span>
           )}
@@ -41,16 +43,19 @@ export default function JobItem({ job, onCancel }: Props) {
           {job.status === 'running' && (
             <button
               onClick={() => onCancel(job.id)}
-              className="text-xs text-zinc-500 hover:text-zinc-200 transition-colors leading-none"
+              className="text-[color:var(--fg-muted)] hover:text-[color:var(--fg)] transition-colors leading-none w-4 h-4 flex items-center justify-center rounded hover:bg-[color:var(--surface-strong)]"
               title="Cancel"
+              aria-label="Cancel"
             >
-              ✕
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
             </button>
           )}
           {job.status === 'done' && job.outputPath && (
             <button
               onClick={handleReveal}
-              className="text-xs text-sky-400 hover:text-sky-300 transition-colors"
+              className="text-[11px] text-[color:var(--accent)] hover:underline transition-colors"
             >
               Reveal
             </button>
@@ -58,12 +63,10 @@ export default function JobItem({ job, onCancel }: Props) {
         </div>
       </div>
 
-      {/* Progress bar for running jobs */}
       {job.status === 'running' && <ProgressBar pct={pct} />}
 
-      {/* Error message */}
       {job.status === 'failed' && job.error && (
-        <span className="text-xs text-red-400 truncate" title={job.error}>
+        <span className="text-[11px] text-[color:var(--danger)] truncate" title={job.error}>
           {job.error}
         </span>
       )}
@@ -72,12 +75,19 @@ export default function JobItem({ job, onCancel }: Props) {
 }
 
 function StatusBadge({ status }: { status: JobStatus }) {
+  const base =
+    'text-[10px] px-1.5 py-0.5 rounded-md font-medium uppercase tracking-wide';
   const styles: Record<JobStatus, string> = {
-    pending: 'bg-zinc-700 text-zinc-300',
-    running: 'bg-sky-950 text-sky-300',
-    done: 'bg-emerald-950 text-emerald-300',
-    failed: 'bg-red-950 text-red-300',
-    cancelled: 'bg-zinc-800 text-zinc-500',
+    pending:
+      'bg-[color:var(--surface-strong)] text-[color:var(--fg-muted)]',
+    running:
+      'bg-[color:var(--accent-bg)] text-[color:var(--accent)]',
+    done:
+      'bg-[color:var(--success-bg)] text-[color:var(--success)]',
+    failed:
+      'bg-[color:var(--danger-bg)] text-[color:var(--danger)]',
+    cancelled:
+      'bg-[color:var(--surface-strong)] text-[color:var(--fg-faint)]',
   };
   const labels: Record<JobStatus, string> = {
     pending: 'Pending',
@@ -86,29 +96,24 @@ function StatusBadge({ status }: { status: JobStatus }) {
     failed: 'Failed',
     cancelled: 'Cancelled',
   };
-  return (
-    <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${styles[status]}`}>
-      {labels[status]}
-    </span>
-  );
+  return <span className={`${base} ${styles[status]}`}>{labels[status]}</span>;
 }
 
 function ProgressBar({ pct }: { pct: number | null }) {
   if (pct !== null) {
     return (
-      <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="h-1 bg-[color:var(--progress-track)] rounded-full overflow-hidden">
         <div
-          className="h-full bg-sky-500 rounded-full transition-[width] duration-300"
+          className="h-full bg-[color:var(--accent)] rounded-full transition-[width] duration-300"
           style={{ width: `${pct}%` }}
         />
       </div>
     );
   }
 
-  // Indeterminate — animated shimmer
   return (
-    <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-      <div className="h-full animate-progress-indeterminate bg-sky-500 rounded-full" />
+    <div className="h-1 bg-[color:var(--progress-track)] rounded-full overflow-hidden">
+      <div className="h-full animate-progress-indeterminate bg-[color:var(--accent)] rounded-full" />
     </div>
   );
 }

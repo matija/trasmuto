@@ -7,7 +7,7 @@ export default function SettingsPanel() {
 
   if (!loaded) {
     return (
-      <div className="flex items-center justify-center h-full text-zinc-500 text-sm">
+      <div className="flex items-center justify-center h-full text-[color:var(--fg-muted)] text-sm">
         Loading…
       </div>
     );
@@ -17,7 +17,7 @@ export default function SettingsPanel() {
     settings.videoCodec === 'h264' || settings.videoCodec === 'h265';
 
   return (
-    <div className="overflow-y-auto h-full px-4 py-4 flex flex-col gap-4">
+    <div className="overflow-y-auto h-full px-5 py-4 flex flex-col gap-4">
       <SettingRow label="Video codec">
         <Select
           value={settings.videoCodec}
@@ -45,9 +45,10 @@ export default function SettingsPanel() {
             max={51}
             value={settings.crf}
             onChange={(e) => update({ crf: Number(e.target.value) })}
-            className="w-full accent-sky-500"
+            className="w-full"
+            style={{ accentColor: 'var(--accent)' }}
           />
-          <div className="flex justify-between text-xs text-zinc-600 mt-0.5">
+          <div className="flex justify-between text-[11px] text-[color:var(--fg-faint)] mt-0.5">
             <span>18 (best)</span>
             <span>51 (smallest)</span>
           </div>
@@ -127,7 +128,7 @@ export default function SettingsPanel() {
           value={settings.ffmpegPath ?? ''}
           onChange={(e) => update({ ffmpegPath: e.target.value || null })}
           placeholder="/opt/homebrew/bin/ffmpeg"
-          className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-sky-500 transition-colors"
+          className="w-full bg-[color:var(--control-bg)] border border-[color:var(--control-border)] rounded-md px-2.5 py-1.5 text-[13px] text-[color:var(--fg)] placeholder-[color:var(--fg-faint)] focus:outline-none focus:border-[color:var(--accent)] transition-colors"
         />
       </SettingRow>
     </div>
@@ -146,8 +147,8 @@ function SettingRow({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-baseline gap-2">
-        <span className="text-sm font-medium text-zinc-300">{label}</span>
-        {hint && <span className="text-xs text-zinc-600">{hint}</span>}
+        <span className="text-[13px] font-medium text-[color:var(--fg)]">{label}</span>
+        {hint && <span className="text-[11px] text-[color:var(--fg-muted)]">{hint}</span>}
       </div>
       {children}
     </div>
@@ -167,7 +168,12 @@ function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-sky-500 transition-colors appearance-none cursor-pointer"
+      className="w-full bg-[color:var(--control-bg)] border border-[color:var(--control-border)] rounded-md px-2.5 py-1.5 text-[13px] text-[color:var(--fg)] focus:outline-none focus:border-[color:var(--accent)] transition-colors appearance-none cursor-pointer bg-no-repeat bg-right pr-7"
+      style={{
+        backgroundImage:
+          "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>\")",
+        backgroundPosition: 'right 0.6rem center',
+      }}
     >
       {options.map((o) => (
         <option key={o.value} value={o.value}>

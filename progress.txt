@@ -101,6 +101,15 @@
 - Made make_output_path pub(crate) so unit tests within convert.rs can access it
 - All 27 tests pass with 0 warnings
 
+## Phase 12 — Release Workflow Hardening (DONE)
+
+- Narrowed tag trigger from `v*` to `v*.*.*` (semver only, per PRD)
+- Added `fetch-depth: 0` to checkout so tauri-action can read full git history
+- Added `aarch64-apple-darwin` Rust target for Apple Silicon builds
+- Added prerelease detection step: tags containing `-beta`, `-alpha`, or `-rc` set `prerelease: true`
+- Changed `releaseDraft: false` so releases publish immediately on success
+- Added `if: failure()` step that marks any partially-created release as draft on build failure
+
 ## Phase 11 — CI Workflow (DONE)
 
 - Created `.github/workflows/ci.yml` triggered on push to `main` and all PRs

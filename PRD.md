@@ -233,6 +233,11 @@ trasmuto/
 - Verify `documentTypes` registration works after `.app` install
 - GitHub Actions release workflow via `tauri-action`
 
+### Phase 8 - Tests
+- Test that dropping a file on the icon works
+- Test that dropping a file on the Window of the app works
+- Test that a new file is created, with a new file name, in the same folder from where it was drag n dropped
+
 ---
 
 ## Open Questions / Future Work

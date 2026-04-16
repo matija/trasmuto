@@ -7,6 +7,7 @@ import {
   onConversionError,
   onJobStarted,
   probeFile,
+  takePendingJobStarts,
 } from '../lib/tauri-commands';
 import { cancelConversion } from '../lib/tauri-commands';
 
@@ -61,13 +62,15 @@ export function useJobQueue() {
   const { jobs, upsert, markCancelled, clearDone } = useJobQueueStore();
 
   useEffect(() => {
+    const applyStart = (jobId: string, inputPath: string) => {
+      upsert(jobId, { inputPath, status: 'running' });
+      probeFile(inputPath)
+        .then((info) => upsert(jobId, { durationMs: info.durationMs }))
+        .catch(() => {});
+    };
+
     const subs = Promise.all([
-      onJobStarted(({ jobId, inputPath }) => {
-        upsert(jobId, { inputPath, status: 'running' });
-        probeFile(inputPath)
-          .then((info) => upsert(jobId, { durationMs: info.durationMs }))
-          .catch(() => {});
-      }),
+      onJobStarted(({ jobId, inputPath }) => applyStart(jobId, inputPath)),
 
       onConversionProgress(({ jobId, outTimeMs, speed, done }) => {
         upsert(jobId, { outTimeMs, speed, status: done ? 'done' : 'running' });
@@ -81,6 +84,18 @@ export function useJobQueue() {
         upsert(jobId, { status: 'failed', error });
       }),
     ]);
+
+    // Drain any job-started events that fired before listeners were attached.
+    // This catches the cold-launch dock-drop case, where macOS dispatches
+    // `Opened` (and the Rust side starts the job) before React has mounted.
+    // Duplicates are harmless: upsert dedupes by job id.
+    subs.then(() => {
+      takePendingJobStarts()
+        .then((pending) => {
+          for (const p of pending) applyStart(p.jobId, p.inputPath);
+        })
+        .catch(() => {});
+    });
 
     return () => {
       subs.then((fns) => fns.forEach((fn) => fn()));

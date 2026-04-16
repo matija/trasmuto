@@ -22,6 +22,9 @@ export const saveSettings = (settings: ConversionSettings): Promise<void> =>
 export const getFfmpegPath = (): Promise<string | null> =>
   invoke('get_ffmpeg_path');
 
+export const takePendingJobStarts = (): Promise<JobStartedPayload[]> =>
+  invoke('take_pending_job_starts');
+
 // --- Event payload types ---
 
 export interface ProgressPayload {

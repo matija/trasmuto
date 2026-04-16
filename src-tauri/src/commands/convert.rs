@@ -17,6 +17,12 @@ use crate::models::ConversionSettings;
 #[derive(Clone, Default)]
 pub struct ActiveJobs(pub Arc<Mutex<HashMap<String, Child>>>);
 
+/// Buffer of job-started payloads that were emitted before the frontend
+/// attached its listeners (e.g. on cold-launch dock drop).  The frontend
+/// drains this on mount to catch up.
+#[derive(Clone, Default)]
+pub struct PendingJobStarts(pub Arc<Mutex<Vec<JobStartedEvent>>>);
+
 // ---------------------------------------------------------------------------
 // Event payloads (Rust → Frontend)
 // ---------------------------------------------------------------------------
@@ -44,6 +50,13 @@ struct ErrorEvent {
     error: String,
 }
 
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct JobStartedEvent {
+    pub job_id: String,
+    pub input_path: String,
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -66,6 +79,18 @@ pub(crate) fn make_output_path(input: &str) -> Result<String, String> {
         .join(format!("{output_stem}.mp4"))
         .to_string_lossy()
         .to_string())
+}
+
+/// Synchronous helper so the async `dispatch_conversion` doesn't hold a
+/// MutexGuard across `.await` points.  Pushes a `job-started` payload into
+/// the pending buffer (bounded), for the frontend to drain on mount.
+fn push_pending_job_start(app: &AppHandle, started: JobStartedEvent) {
+    let pending = app.state::<PendingJobStarts>();
+    let Ok(mut buf) = pending.0.lock() else { return };
+    if buf.len() >= 64 {
+        buf.remove(0);
+    }
+    buf.push(started);
 }
 
 fn new_job_id() -> String {
@@ -115,6 +140,16 @@ pub async fn dispatch_conversion(
         let mut map = jobs.0.lock().map_err(|_| "job store lock poisoned".to_string())?;
         map.insert(job_id.clone(), child);
     }
+
+    // Emit job-started so the frontend can add a queue entry immediately,
+    // AND push a copy into the pending buffer so a freshly-mounted frontend
+    // (cold-launch dock drop) can catch up via `take_pending_job_starts`.
+    let started = JobStartedEvent {
+        job_id: job_id.clone(),
+        input_path: input_path.clone(),
+    };
+    let _ = app.emit("job-started", &started);
+    push_pending_job_start(&app, started);
 
     // Background task: read progress lines, then wait for the process to exit.
     let job_id_bg = job_id.clone();
@@ -255,6 +290,20 @@ pub async fn cancel_conversion(
         let _ = tokio::process::Child::kill(&mut child).await;
     }
     Ok(())
+}
+
+/// Drains any buffered `job-started` events.  Called by the frontend on mount
+/// to catch up on jobs dispatched before its listeners were attached (notably
+/// dock-icon drops that cold-launch the app).
+#[tauri::command]
+pub async fn take_pending_job_starts(
+    pending: State<'_, PendingJobStarts>,
+) -> Result<Vec<JobStartedEvent>, String> {
+    let mut buf = pending
+        .0
+        .lock()
+        .map_err(|_| "pending store lock poisoned".to_string())?;
+    Ok(std::mem::take(&mut *buf))
 }
 
 #[cfg(test)]

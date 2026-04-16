@@ -101,6 +101,16 @@
 - Made make_output_path pub(crate) so unit tests within convert.rs can access it
 - All 27 tests pass with 0 warnings
 
+## Phase 10 — Code Refactoring & Dead Code Removal (DONE)
+
+- Removed ConversionJob, JobStatus, ConversionProgress from models.rs — these structs were never used in Rust code; the frontend manages its own job state
+- Removed println! debug line from lib.rs RunEvent::Opened handler
+- Removed dead getFfmpegPath and onFileOpened exports from tauri-commands.ts (never consumed in any component or hook)
+- Consolidated duplicate cancelConversion import in useJobQueue.ts into a single import block
+- Removed console.error development artifact from App.tsx drag-drop handler
+- Added ESLint (eslint + @eslint/js + typescript-eslint) with eslint.config.js; added npm run lint script to package.json
+- All acceptance criteria pass: cargo clippy -- -D warnings (0 warnings), cargo test (27 tests pass), tsc --noEmit (0 errors), npm run lint (0 errors), npm run test (13 tests pass)
+
 ## Phase 9 — Frontend Tests (DONE)
 
 - Installed vitest 4, @testing-library/react, @testing-library/jest-dom, jsdom as devDependencies

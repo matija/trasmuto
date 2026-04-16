@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*.*.*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v0.1.0)'
+        required: true
 
 jobs:
   # NOTE: This workflow does not inline CI as a prerequisite job.
@@ -44,7 +48,7 @@ jobs:
 
       - name: Verify version consistency
         run: |
-          TAG="${{ github.ref_name }}"
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
           TAG_VERSION="${TAG#v}"
           CONF_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
           CARGO_VERSION=$(grep '^version' src-tauri/Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
@@ -60,7 +64,7 @@ jobs:
       - name: Detect prerelease
         id: check_prerelease
         run: |
-          if [[ "${{ github.ref_name }}" =~ -(beta|alpha|rc) ]]; then
+          if [[ "${{ github.event.inputs.tag || github.ref_name }}" =~ -(beta|alpha|rc) ]]; then
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
           else
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
@@ -79,9 +83,9 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Trasmuto ${{ github.ref_name }}'
-          releaseBody: 'Release ${{ github.ref_name }}. See the assets below to download this version.'
+          tagName: ${{ github.event.inputs.tag || github.ref_name }}
+          releaseName: 'Trasmuto ${{ github.event.inputs.tag || github.ref_name }}'
+          releaseBody: 'Release ${{ github.event.inputs.tag || github.ref_name }}. See the assets below to download this version.'
           releaseDraft: false
           prerelease: ${{ steps.check_prerelease.outputs.prerelease }}
           includeDebug: false
@@ -89,6 +93,6 @@ jobs:
       - name: Mark release draft on failure
         if: failure()
         run: |
-          gh release edit "${{ github.ref_name }}" --draft=true || true
+          gh release edit "${{ github.event.inputs.tag || github.ref_name }}" --draft=true || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

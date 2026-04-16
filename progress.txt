@@ -101,6 +101,13 @@
 - Made make_output_path pub(crate) so unit tests within convert.rs can access it
 - All 27 tests pass with 0 warnings
 
+## Phase 14 — Version Consistency Check (DONE)
+
+- Added `Verify version consistency` step to `release.yml` before the build steps
+- Step strips leading `v` from the git tag, then extracts versions from `src-tauri/tauri.conf.json` (via `jq`) and `src-tauri/Cargo.toml` (via `grep`/`sed`)
+- Fails with a human-readable message (e.g. `Tag v1.2.0 does not match app version 1.1.0`) if either file disagrees with the tag
+- Satisfies R2 acceptance criteria
+
 ## Phase 13 — CI Binary Build (DONE)
 
 - Added `targets: aarch64-apple-darwin` to the Rust toolchain step in ci.yml

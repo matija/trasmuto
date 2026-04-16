@@ -101,6 +101,12 @@
 - Made make_output_path pub(crate) so unit tests within convert.rs can access it
 - All 27 tests pass with 0 warnings
 
+## Phase 11 — CI Workflow (DONE)
+
+- Created `.github/workflows/ci.yml` triggered on push to `main` and all PRs
+- Steps: checkout, Node 22 + Rust stable (with clippy component), Cargo + npm cache, npm ci, typecheck, lint, frontend tests (vitest), cargo clippy -D warnings, cargo test
+- Unit tests only — no ffmpeg required; satisfies PRD Section 3.4
+
 ## Phase 10 — Code Refactoring & Dead Code Removal (DONE)
 
 - Removed ConversionJob, JobStatus, ConversionProgress from models.rs — these structs were never used in Rust code; the frontend manages its own job state

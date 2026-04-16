@@ -64,4 +64,13 @@
 - lib.rs: emit job-started {jobId, inputPath} after dispatch_conversion so frontend can show file names
 - cargo build and tsc --noEmit both pass with 0 errors
 
-## Next: Phase 6 — Notifications
+## Phase 6 — Notifications (DONE)
+
+- `tauri_plugin_notification::NotificationExt` imported in convert.rs and lib.rs
+- On job success: native macOS notification "Conversion complete / <filename> is ready"
+- On ffmpeg error exit: "Conversion failed / <filename> could not be converted"
+- On unexpected wait error: "Conversion failed / An unexpected error occurred"
+- `.setup()` block in lib.rs calls `app.notification().request_permission()` on first launch
+- cargo build succeeds with 0 errors
+
+## Next: Phase 7 — Build & Distribution

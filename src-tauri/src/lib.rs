@@ -4,6 +4,7 @@ mod models;
 
 use commands::{cancel_conversion, convert_file, dispatch_conversion, get_ffmpeg_path, get_settings, load_settings, probe_file, save_settings, ActiveJobs};
 use tauri::{Emitter, Manager};
+use tauri_plugin_notification::NotificationExt;
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
     "mp4", "mkv", "mov", "avi", "webm", "m4v", "flv", "wmv", "ts", "mts", "m2ts",
@@ -25,6 +26,11 @@ pub fn run() {
             save_settings,
             get_ffmpeg_path,
         ])
+        .setup(|app| {
+            // Request macOS notification permission on first launch.
+            let _ = app.notification().request_permission();
+            Ok(())
+        })
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| {

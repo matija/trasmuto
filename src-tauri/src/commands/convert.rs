@@ -48,7 +48,7 @@ struct ErrorEvent {
 // Helpers
 // ---------------------------------------------------------------------------
 
-fn make_output_path(input: &str) -> Result<String, String> {
+pub(crate) fn make_output_path(input: &str) -> Result<String, String> {
     use std::path::Path;
     let p = Path::new(input);
     let stem = p
@@ -255,4 +255,39 @@ pub async fn cancel_conversion(
         let _ = tokio::process::Child::kill(&mut child).await;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn non_mp4_output_keeps_stem_and_adds_mp4() {
+        let out = make_output_path("/videos/clip.mkv").unwrap();
+        assert_eq!(out, "/videos/clip.mp4");
+    }
+
+    #[test]
+    fn mp4_input_gets_converted_suffix() {
+        let out = make_output_path("/videos/clip.mp4").unwrap();
+        assert_eq!(out, "/videos/clip-converted.mp4");
+    }
+
+    #[test]
+    fn output_is_in_same_directory_as_input() {
+        let out = make_output_path("/some/deep/path/video.mov").unwrap();
+        assert!(out.starts_with("/some/deep/path/"));
+    }
+
+    #[test]
+    fn mov_input_keeps_original_stem() {
+        let out = make_output_path("/tmp/recording.mov").unwrap();
+        assert_eq!(out, "/tmp/recording.mp4");
+    }
+
+    #[test]
+    fn mkv_with_dots_in_stem() {
+        let out = make_output_path("/tmp/my.video.mkv").unwrap();
+        assert_eq!(out, "/tmp/my.video.mp4");
+    }
 }

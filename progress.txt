@@ -101,6 +101,13 @@
 - Made make_output_path pub(crate) so unit tests within convert.rs can access it
 - All 27 tests pass with 0 warnings
 
+## Phase 13 — CI Binary Build (DONE)
+
+- Added `targets: aarch64-apple-darwin` to the Rust toolchain step in ci.yml
+- Added final `Tauri build` step: `npx tauri build --target aarch64-apple-darwin`
+- CI now catches packaging regressions on every push to main and every PR (R1)
+- Artifacts are not uploaded; build step exits non-zero on failure
+
 ## Phase 12 — Release Workflow Hardening (DONE)
 
 - Narrowed tag trigger from `v*` to `v*.*.*` (semver only, per PRD)

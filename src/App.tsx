@@ -1,51 +1,63 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { useState, useEffect } from 'react';
+import { listen } from '@tauri-apps/api/event';
+import JobQueue from './components/JobQueue';
+import SettingsPanel from './components/SettingsPanel';
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+type Tab = 'queue' | 'settings';
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+export default function App() {
+  const [tab, setTab] = useState<Tab>('queue');
+
+  // Switch to queue tab when files arrive via dock drop
+  useEffect(() => {
+    const unlisten = listen('file-opened', () => setTab('queue'));
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, []);
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="flex flex-col h-screen bg-zinc-950 text-zinc-100 select-none overflow-hidden">
+      {/* Title bar — extends under macOS traffic lights (~76px from left) */}
+      <div className="drag flex items-center h-8 shrink-0 border-b border-zinc-800/60">
+        <div className="no-drag ml-[76px] flex">
+          <TabButton active={tab === 'queue'} onClick={() => setTab('queue')}>
+            Queue
+          </TabButton>
+          <TabButton active={tab === 'settings'} onClick={() => setTab('settings')}>
+            Settings
+          </TabButton>
+        </div>
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+      {/* Main content */}
+      <div className="flex-1 min-h-0">
+        {tab === 'queue' ? <JobQueue /> : <SettingsPanel />}
+      </div>
+    </div>
   );
 }
 
-export default App;
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={[
+        'px-3 h-8 text-xs font-medium transition-colors',
+        active
+          ? 'text-zinc-100 border-b-2 border-sky-500'
+          : 'text-zinc-500 hover:text-zinc-300',
+      ].join(' ')}
+    >
+      {children}
+    </button>
+  );
+}

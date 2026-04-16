@@ -64,8 +64,13 @@ pub fn run() {
                     let app_handle = app.clone();
                     let settings_clone = settings.clone();
                     tauri::async_runtime::spawn(async move {
-                        match dispatch_conversion(path.clone(), settings_clone, app_handle).await {
+                        match dispatch_conversion(path.clone(), settings_clone, app_handle.clone()).await {
                             Ok(job_id) => {
+                                // Notify the frontend so it can show the job with file name.
+                                let _ = app_handle.emit(
+                                    "job-started",
+                                    serde_json::json!({ "jobId": job_id, "inputPath": path }),
+                                );
                                 println!("[Opened] started job {job_id} for {path}");
                             }
                             Err(e) => {

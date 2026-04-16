@@ -81,8 +81,6 @@ pub fn run() {
                     return;
                 }
 
-                println!("[Opened] dispatching {} file(s): {:?}", paths.len(), paths);
-
                 // Show and focus the window so the user sees progress immediately.
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.show();

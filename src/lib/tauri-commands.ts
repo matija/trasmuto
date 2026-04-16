@@ -19,9 +19,6 @@ export const getSettings = (): Promise<ConversionSettings> =>
 export const saveSettings = (settings: ConversionSettings): Promise<void> =>
   invoke('save_settings', { settings });
 
-export const getFfmpegPath = (): Promise<string | null> =>
-  invoke('get_ffmpeg_path');
-
 export const takePendingJobStarts = (): Promise<JobStartedPayload[]> =>
   invoke('take_pending_job_starts');
 
@@ -59,9 +56,6 @@ export const onConversionComplete = (cb: (p: CompletePayload) => void): Promise<
 
 export const onConversionError = (cb: (p: ErrorPayload) => void): Promise<UnlistenFn> =>
   listen<ErrorPayload>('conversion-error', (e) => cb(e.payload));
-
-export const onFileOpened = (cb: (paths: string[]) => void): Promise<UnlistenFn> =>
-  listen<string[]>('file-opened', (e) => cb(e.payload));
 
 export const onJobStarted = (cb: (p: JobStartedPayload) => void): Promise<UnlistenFn> =>
   listen<JobStartedPayload>('job-started', (e) => cb(e.payload));

@@ -53,9 +53,7 @@ export default function App() {
         setTab('queue');
         const videos = p.paths.filter(isSupportedVideo);
         for (const path of videos) {
-          convertFile(path, settings).catch((err) => {
-            console.error('convertFile failed', path, err);
-          });
+          convertFile(path, settings).catch(() => {});
         }
       }
     });

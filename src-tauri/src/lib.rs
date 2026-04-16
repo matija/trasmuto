@@ -2,7 +2,8 @@ mod commands;
 mod ffmpeg;
 mod models;
 
-use commands::{cancel_conversion, convert_file, get_ffmpeg_path, get_settings, probe_file, save_settings, ActiveJobs};
+use commands::{cancel_conversion, convert_file, dispatch_conversion, get_ffmpeg_path, get_settings, probe_file, save_settings, ActiveJobs};
+use models::ConversionSettings;
 use tauri::{Emitter, Manager};
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
@@ -45,14 +46,34 @@ pub fn run() {
                     return;
                 }
 
-                println!("[Opened] received {} file(s): {:?}", paths.len(), paths);
+                println!("[Opened] dispatching {} file(s): {:?}", paths.len(), paths);
 
-                // Emit file-opened event so the frontend can populate the queue.
-                // Window focus happens here too so the user sees progress.
+                // Show and focus the window so the user sees progress immediately.
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.show();
                     let _ = window.set_focus();
+                    // Notify the frontend so it can add pending items to the queue UI.
                     let _ = window.emit("file-opened", &paths);
+                }
+
+                // Load settings — Phase 4 will replace this with a persistent store lookup.
+                let settings = ConversionSettings::default();
+
+                // Dispatch one conversion job per file.  Each runs in its own async task so
+                // multiple dock drops execute concurrently.
+                for path in paths {
+                    let app_handle = app.clone();
+                    let settings_clone = settings.clone();
+                    tauri::async_runtime::spawn(async move {
+                        match dispatch_conversion(path.clone(), settings_clone, app_handle).await {
+                            Ok(job_id) => {
+                                println!("[Opened] started job {job_id} for {path}");
+                            }
+                            Err(e) => {
+                                eprintln!("[Opened] failed to start conversion for {path}: {e}");
+                            }
+                        }
+                    });
                 }
             }
         });

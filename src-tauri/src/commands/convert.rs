@@ -77,15 +77,16 @@ fn new_job_id() -> String {
 }
 
 // ---------------------------------------------------------------------------
-// Commands
+// Core dispatch logic (shared by command and RunEvent::Opened handler)
 // ---------------------------------------------------------------------------
 
-#[tauri::command]
-pub async fn convert_file(
+/// Start a conversion job for `input_path` using `settings`.  Returns the job ID.
+/// This is the single place that spawns ffmpeg — both the Tauri command and the
+/// dock-drop handler call through here.
+pub async fn dispatch_conversion(
     input_path: String,
     settings: ConversionSettings,
     app: AppHandle,
-    jobs: State<'_, ActiveJobs>,
 ) -> Result<String, String> {
     let ffmpeg_path = finder::find_ffmpeg(settings.ffmpeg_path.as_deref())
         .ok_or_else(|| "ffmpeg not found. Install via: brew install ffmpeg".to_string())?;
@@ -109,6 +110,7 @@ pub async fn convert_file(
 
     // Store child handle so cancel_conversion can kill it.
     {
+        let jobs = app.state::<ActiveJobs>();
         let mut map = jobs.0.lock().map_err(|_| "job store lock poisoned".to_string())?;
         map.insert(job_id.clone(), child);
     }
@@ -200,6 +202,20 @@ pub async fn convert_file(
     Ok(job_id)
 }
 
+// ---------------------------------------------------------------------------
+// Commands
+// ---------------------------------------------------------------------------
+
+/// Tauri command — starts a conversion and returns the job ID.
+#[tauri::command]
+pub async fn convert_file(
+    input_path: String,
+    settings: ConversionSettings,
+    app: AppHandle,
+) -> Result<String, String> {
+    dispatch_conversion(input_path, settings, app).await
+}
+
 #[tauri::command]
 pub async fn cancel_conversion(
     job_id: String,
@@ -210,7 +226,7 @@ pub async fn cancel_conversion(
         map.remove(&job_id)
     };
     if let Some(mut child) = child_opt {
-        let _ = child.kill().await;
+        let _ = tokio::process::Child::kill(&mut child).await;
     }
     Ok(())
 }

@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Child;
 use tauri::{AppHandle, Emitter, Manager, State};
+use tauri_plugin_notification::NotificationExt;
 use serde::Serialize;
 
 use crate::ffmpeg::{builder, finder, progress as progress_parser};
@@ -166,6 +167,16 @@ pub async fn dispatch_conversion(
         match child_opt {
             Some(mut child) => match child.wait().await {
                 Ok(status) if status.success() => {
+                    let file_name = std::path::Path::new(&output_path_bg)
+                        .file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or(&output_path_bg)
+                        .to_string();
+                    let _ = app_bg.notification()
+                        .builder()
+                        .title("Conversion complete")
+                        .body(format!("{file_name} is ready"))
+                        .show();
                     let _ = app_bg.emit(
                         "conversion-complete",
                         CompleteEvent {
@@ -175,6 +186,16 @@ pub async fn dispatch_conversion(
                     );
                 }
                 Ok(_) => {
+                    let file_name = std::path::Path::new(&output_path_bg)
+                        .file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or(&output_path_bg)
+                        .to_string();
+                    let _ = app_bg.notification()
+                        .builder()
+                        .title("Conversion failed")
+                        .body(format!("{file_name} could not be converted"))
+                        .show();
                     let _ = app_bg.emit(
                         "conversion-error",
                         ErrorEvent {
@@ -184,6 +205,11 @@ pub async fn dispatch_conversion(
                     );
                 }
                 Err(e) => {
+                    let _ = app_bg.notification()
+                        .builder()
+                        .title("Conversion failed")
+                        .body("An unexpected error occurred")
+                        .show();
                     let _ = app_bg.emit(
                         "conversion-error",
                         ErrorEvent {

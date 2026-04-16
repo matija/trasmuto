@@ -13,4 +13,16 @@
 - Updated capabilities/default.json with new plugin permissions
 - Verified: cargo build succeeds with 0 errors
 
-## Next: Phase 2 — ffmpeg Core
+## Phase 2 — ffmpeg Core (DONE)
+
+- finder.rs: binary discovery with Homebrew path fallbacks + `which` PATH fallback; added find_ffprobe()
+- probe.rs: real ffprobe invocation, parses JSON output for duration, resolution, codecs
+- convert.rs: spawns ffmpeg as async child process, reads -progress pipe:1 stdout line-by-line,
+  emits conversion-progress / conversion-complete / conversion-error events via AppHandle;
+  ActiveJobs state (Arc<Mutex<HashMap>>) stores live Child handles for cancellation
+- cancel_conversion: removes child from map and kills the process
+- settings.rs: get_ffmpeg_path now calls finder::find_ffmpeg
+- lib.rs: registers ActiveJobs::default() as Tauri managed state
+- cargo build succeeds with 0 errors
+
+## Next: Phase 3 — Dock Drop Integration

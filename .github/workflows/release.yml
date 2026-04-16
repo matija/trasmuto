@@ -36,6 +36,21 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Verify version consistency
+        run: |
+          TAG="${{ github.ref_name }}"
+          TAG_VERSION="${TAG#v}"
+          CONF_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          CARGO_VERSION=$(grep '^version' src-tauri/Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          if [ "$CONF_VERSION" != "$TAG_VERSION" ]; then
+            echo "Tag $TAG does not match app version $CONF_VERSION in tauri.conf.json"
+            exit 1
+          fi
+          if [ "$CARGO_VERSION" != "$TAG_VERSION" ]; then
+            echo "Tag $TAG does not match app version $CARGO_VERSION in Cargo.toml"
+            exit 1
+          fi
+
       - name: Detect prerelease
         id: check_prerelease
         run: |

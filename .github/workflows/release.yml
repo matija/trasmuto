@@ -7,6 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
+  # NOTE: This workflow does not inline CI as a prerequisite job.
+  # The CI gate is enforced via a branch protection rule on `main` that
+  # requires the "ci" status check to pass before any commit can be merged.
+  # Because tags are only pushed from commits that have already landed on `main`,
+  # a passing CI run is guaranteed before this release workflow fires.
+  # See the "Releasing" section in README.md for setup instructions.
   release:
     permissions:
       contents: write

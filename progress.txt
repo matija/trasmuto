@@ -1,5 +1,34 @@
 ## PRD v3: UI Polish
 
+## Task 4 — General UI Polish (DONE)
+
+### 4.1 Typography
+- Filename in `JobItem`: bumped to `14px`, kept `font-medium`
+- Status badges: removed `uppercase tracking-wide` CSS (labels already sentence-case)
+- Empty-state headline: bumped to `text-[14px] font-semibold`
+
+### 4.2 Spacing and Layout
+- `JobItem` vertical padding: `py-2.5` → `py-3`
+- Title bar height: `h-11` → `h-10`
+- Progress bar height: `h-1` → `h-[3px]` (both determinate and indeterminate)
+
+### 4.3 Segmented Control
+- Container: `rounded-md` → `rounded-full`
+- Active pill: `rounded-[5px]` → `rounded-full`
+- Inactive labels: already had `font-medium` on button base class (no change needed)
+
+### 4.4 Job Item — Done State
+- Added 12×12 checkmark SVG in `--success` color next to done status badge
+- Filename dimmed to `--fg-muted` when job is `done`
+
+### 4.5 Empty State
+- Video icon wrapped in 56×56 tinted circle (`--accent-bg` background, `--accent` stroke)
+- Icon size bumped from 44×44 to 48×48 inside the circle
+- Subtext font reduced to `11px` with `max-w-[160px]` and `leading-snug` for clean two-line wrap
+
+### Tests
+- All 13 frontend tests pass; `tsc --noEmit` clean
+
 ## Task 3 — Auto-Open on Completion (DONE)
 
 ### 3.1 Setting

@@ -25,14 +25,37 @@ export default function JobItem({ job, onCancel }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-1.5 px-3 py-2.5 mx-1 rounded-lg hover:bg-[color:var(--surface)] transition-colors">
+    <div className="flex flex-col gap-1.5 px-3 py-2.5 mx-1 rounded-lg hover:bg-[color:var(--surface)] transition-colors animate-job-enter">
       <div className="flex items-center justify-between gap-2">
-        <span
-          className="text-[13px] font-medium text-[color:var(--fg)] truncate"
-          title={job.inputPath}
-        >
-          {filename}
-        </span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {/* Film-strip placeholder */}
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            className="shrink-0 text-[color:var(--fg-muted)]"
+          >
+            <rect x="1" y="2.5" width="14" height="11" rx="1.5" />
+            <line x1="4.5" y1="2.5" x2="4.5" y2="13.5" />
+            <line x1="11.5" y1="2.5" x2="11.5" y2="13.5" />
+            <line x1="1" y1="5.5" x2="4.5" y2="5.5" />
+            <line x1="11.5" y1="5.5" x2="15" y2="5.5" />
+            <line x1="1" y1="8" x2="4.5" y2="8" />
+            <line x1="11.5" y1="8" x2="15" y2="8" />
+            <line x1="1" y1="10.5" x2="4.5" y2="10.5" />
+            <line x1="11.5" y1="10.5" x2="15" y2="10.5" />
+          </svg>
+          <span
+            className="text-[13px] font-medium text-[color:var(--fg)] truncate"
+            title={job.inputPath}
+          >
+            {filename}
+          </span>
+        </div>
         <div className="flex items-center gap-2 shrink-0">
           {job.status === 'running' && job.speed != null && (
             <span className="text-[11px] text-[color:var(--fg-muted)] tabular-nums">

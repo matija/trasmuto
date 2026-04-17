@@ -7,7 +7,10 @@
 - Tag push was failing with 403: PAT_TOKEN secret was not set; fixed by switching to github.token (GITHUB_TOKEN with contents:write permission)
 - Committed fix: fix(ci): use github.token for tag push instead of missing PAT_TOKEN (7bd8cff)
 - Pushed to main; CI will now retry the tag job and push v0.2.0
-- Waiting for: v0.2.0 tag to appear, release.yml to go green, DMG asset to be downloadable
+- Root cause of release not triggering: GITHUB_TOKEN-pushed tags do not trigger other workflows (GitHub anti-loop policy); v0.2.0 tag existed but release.yml never ran
+- Fixed ci.yml: tag job now dispatches `gh workflow run release.yml --ref $TAG -f tag=$TAG` after a new tag is pushed (1d6a7c2)
+- Manually triggered release.yml for existing v0.2.0 tag via `gh workflow run release.yml --ref v0.2.0 -f tag=v0.2.0` (run 24563910230)
+- Waiting for: release.yml run 24563910230 to succeed and attach DMG asset
 - Verification: `gh release download v0.2.0 --pattern "*.dmg"` + mount on macOS
 
 ## Phase 1 — Diagnose (DONE)

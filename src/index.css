@@ -143,3 +143,16 @@
     background: transparent;
   }
 }
+
+/* Settings panel: hide scrollbar, row dividers */
+.settings-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.settings-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.settings-group > .settings-row:not(:last-child) {
+  border-bottom: 1px solid var(--divider);
+}

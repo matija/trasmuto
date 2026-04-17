@@ -10,6 +10,7 @@ pub struct ConversionSettings {
     pub audio_codec: AudioCodec,
     pub audio_bitrate: u32,
     pub ffmpeg_path: Option<String>,
+    pub open_after_conversion: bool,
 }
 
 impl Default for ConversionSettings {
@@ -22,6 +23,7 @@ impl Default for ConversionSettings {
             audio_codec: AudioCodec::Aac,
             audio_bitrate: 128,
             ffmpeg_path: None,
+            open_after_conversion: false,
         }
     }
 }

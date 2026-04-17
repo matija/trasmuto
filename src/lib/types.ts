@@ -12,6 +12,7 @@ export interface ConversionSettings {
   audioCodec: AudioCodec;
   audioBitrate: number;
   ffmpegPath: string | null;
+  openAfterConversion: boolean;
 }
 
 export interface ConversionJob {

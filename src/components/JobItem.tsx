@@ -80,7 +80,7 @@ export default function JobItem({ job, onCancel }: Props) {
               onClick={handleReveal}
               className="text-[11px] text-[color:var(--accent)] hover:underline transition-colors"
             >
-              Reveal
+              Show in Finder
             </button>
           )}
         </div>

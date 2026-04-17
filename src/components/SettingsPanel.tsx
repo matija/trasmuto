@@ -131,6 +131,21 @@ export default function SettingsPanel() {
           className="w-full bg-[color:var(--control-bg)] border border-[color:var(--control-border)] rounded-md px-2.5 py-1.5 text-[13px] text-[color:var(--fg)] placeholder-[color:var(--fg-faint)] focus:outline-none focus:border-[color:var(--accent)] transition-colors"
         />
       </SettingRow>
+
+      <SettingRow label="Open file when done">
+        <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
+          <input
+            type="checkbox"
+            checked={settings.openAfterConversion}
+            onChange={(e) => update({ openAfterConversion: e.target.checked })}
+            className="w-4 h-4 rounded accent-[color:var(--accent)] cursor-pointer"
+            style={{ accentColor: 'var(--accent)' }}
+          />
+          <span className="text-[13px] text-[color:var(--fg-muted)]">
+            Automatically open output file on completion
+          </span>
+        </label>
+      </SettingRow>
     </div>
   );
 }

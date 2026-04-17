@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS: ConversionSettings = {
   audioCodec: 'aac',
   audioBitrate: 128,
   ffmpegPath: null,
+  openAfterConversion: false,
 };
 
 interface SettingsStore {
@@ -20,7 +21,7 @@ interface SettingsStore {
   _setLoaded: (v: boolean) => void;
 }
 
-const useSettingsStore = create<SettingsStore>((set) => ({
+export const useSettingsStore = create<SettingsStore>((set) => ({
   settings: DEFAULT_SETTINGS,
   loaded: false,
   _set: (settings) => set({ settings }),

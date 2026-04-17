@@ -42,6 +42,38 @@
 ### Tests
 - All 13 frontend tests pass; `tsc --noEmit` clean
 
+## Task — Completion Actions (DONE)
+
+### Done State Visual (§3.1)
+- Checkmark glyph (11×11 px, `--success`) moved to LEFT of filename
+- Filename color shifts to `--fg-muted` when done (unchanged from v3)
+- Progress bar replaced by 1 px hairline `div` using `--divider` at same position
+- Status badge removed for done state
+
+### Inline Action Row (§3.2)
+- Play button: `--bg-raised` fill, `--fg` text, 12 px, `h-5 px-2.5 rounded-full`; calls `openPath(outputPath)` via tauri-plugin-opener
+- Delete button: no fill, `--danger` text at 0.75 opacity (full on hover), same pill shape
+- Both buttons separated by `gap-1.5`; row fades in via `animate-action-row-in` (150 ms)
+
+### Delete Confirmation (§3.3)
+- First click: label changes to "Sure?", danger text goes to full opacity; 300 ms timer resets to "Delete"
+- Second click within window: calls `trash_file` Tauri command (moves file to macOS Trash), then animates item out
+
+### Error State (§3.4)
+- `openPath` or `trashFile` failure: replaces action row with "File not found" (`--fg-muted`) for 2 s, then restores buttons
+
+### Job Removal Animation (§3.5)
+- `animate-job-remove` keyframe: `max-height 200px→0`, `opacity 1→0`, padding collapses over 200 ms
+- After animation, `removeJob(id)` is called → item unmounts → list reflows cleanly
+- If list empties after removal, JobQueue shows the empty-state panel
+
+### Rust
+- Added `trash = "3"` crate to Cargo.toml
+- Added `trash_file(path: String)` command in convert.rs; exported via mod.rs; registered in lib.rs
+
+### Tests
+- All 13 frontend tests pass; `tsc --noEmit` clean; `cargo clippy -- -D warnings` clean; 25 Rust unit tests pass
+
 ## PRD v3: UI Polish
 
 ## Task 6 — Native-Style Settings Panel (DONE)

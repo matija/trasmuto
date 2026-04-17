@@ -77,7 +77,7 @@ export default function App() {
   return (
     <div className="relative flex flex-col h-screen text-[color:var(--fg)] select-none overflow-hidden">
       {/* Draggable title bar — traffic-light area + tab switcher */}
-      <div className="drag flex items-center justify-center h-11 shrink-0 relative">
+      <div className="drag flex items-center justify-center h-10 shrink-0 relative">
         <div className="no-drag">
           <Segmented
             value={tab}
@@ -111,13 +111,13 @@ function Segmented<T extends string>({
   options: { value: T; label: string }[];
 }) {
   return (
-    <div className="inline-flex items-center p-[2px] rounded-md bg-[color:var(--segmented-bg)] text-[13px] leading-none">
+    <div className="inline-flex items-center p-[2px] rounded-full bg-[color:var(--segmented-bg)] text-[13px] leading-none">
       {options.map((o) => (
         <button
           key={o.value}
           onClick={() => onChange(o.value)}
           className={[
-            'px-3 py-1 rounded-[5px] transition-colors font-medium',
+            'px-3 py-1 rounded-full transition-colors font-medium',
             value === o.value
               ? 'bg-[color:var(--segmented-active-bg)] text-[color:var(--fg)] shadow-[0_0_0_0.5px_var(--segmented-active-border),0_1px_1px_rgba(0,0,0,0.08)]'
               : 'text-[color:var(--fg-muted)] hover:text-[color:var(--fg)]',

@@ -11,23 +11,25 @@ export default function JobQueue() {
   if (jobs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-3 px-6 text-center text-[color:var(--fg-muted)]">
-        <svg
-          width="44"
-          height="44"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="text-[color:var(--fg-faint)]"
-        >
-          <rect x="3" y="5" width="18" height="14" rx="2.5" />
-          <polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none" />
-        </svg>
+        <div className="w-[56px] h-[56px] rounded-full bg-[color:var(--accent-bg)] flex items-center justify-center">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.25"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-[color:var(--accent)]"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2.5" />
+            <polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none" />
+          </svg>
+        </div>
         <div className="flex flex-col gap-0.5">
-          <p className="text-sm font-medium text-[color:var(--fg)]">Drop a video to convert</p>
-          <p className="text-xs text-[color:var(--fg-muted)]">
+          <p className="text-[14px] font-semibold text-[color:var(--fg)]">Drop a video to convert</p>
+          <p className="text-[11px] text-[color:var(--fg-muted)] max-w-[160px] leading-snug">
             Drag onto this window or the dock icon
           </p>
         </div>

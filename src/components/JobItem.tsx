@@ -25,7 +25,7 @@ export default function JobItem({ job, onCancel }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-1.5 px-3 py-2.5 mx-1 rounded-lg hover:bg-[color:var(--surface)] transition-colors animate-job-enter">
+    <div className="flex flex-col gap-1.5 px-3 py-3 mx-1 rounded-lg hover:bg-[color:var(--surface)] transition-colors animate-job-enter">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
           {/* Film-strip placeholder */}
@@ -50,7 +50,7 @@ export default function JobItem({ job, onCancel }: Props) {
             <line x1="11.5" y1="10.5" x2="15" y2="10.5" />
           </svg>
           <span
-            className="text-[13px] font-medium text-[color:var(--fg)] truncate"
+            className={`text-[14px] font-medium truncate ${job.status === 'done' ? 'text-[color:var(--fg-muted)]' : 'text-[color:var(--fg)]'}`}
             title={job.inputPath}
           >
             {filename}
@@ -61,6 +61,11 @@ export default function JobItem({ job, onCancel }: Props) {
             <span className="text-[11px] text-[color:var(--fg-muted)] tabular-nums">
               {job.speed.toFixed(1)}&times;
             </span>
+          )}
+          {job.status === 'done' && (
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-[color:var(--success)] shrink-0">
+              <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           )}
           <StatusBadge status={job.status} />
           {job.status === 'running' && (
@@ -99,7 +104,7 @@ export default function JobItem({ job, onCancel }: Props) {
 
 function StatusBadge({ status }: { status: JobStatus }) {
   const base =
-    'text-[10px] px-1.5 py-0.5 rounded-md font-medium uppercase tracking-wide';
+    'text-[10px] px-1.5 py-0.5 rounded-md font-medium';
   const styles: Record<JobStatus, string> = {
     pending:
       'bg-[color:var(--surface-strong)] text-[color:var(--fg-muted)]',
@@ -125,7 +130,7 @@ function StatusBadge({ status }: { status: JobStatus }) {
 function ProgressBar({ pct }: { pct: number | null }) {
   if (pct !== null) {
     return (
-      <div className="h-1 bg-[color:var(--progress-track)] rounded-full overflow-hidden">
+      <div className="h-[3px] bg-[color:var(--progress-track)] rounded-full overflow-hidden">
         <div
           className="h-full bg-[color:var(--accent)] rounded-full transition-[width] duration-300"
           style={{ width: `${pct}%` }}

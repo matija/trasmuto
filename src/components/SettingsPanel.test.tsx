@@ -10,6 +10,7 @@ const defaultSettings: ConversionSettings = {
   audioCodec: 'aac',
   audioBitrate: 128,
   ffmpegPath: null,
+  openAfterConversion: false,
 };
 
 vi.mock('../hooks/useConversionSettings', () => ({

@@ -20,6 +20,7 @@ const loadedSettings: ConversionSettings = {
   audioCodec: 'aac',
   audioBitrate: 192,
   ffmpegPath: null,
+  openAfterConversion: false,
 };
 
 describe('useConversionSettings', () => {

@@ -40,6 +40,6 @@ describe('JobItem', () => {
     render(<JobItem job={doneJob} onCancel={vi.fn()} />);
 
     expect(screen.getByText('Done')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /reveal/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /show in finder/i })).toBeInTheDocument();
   });
 });

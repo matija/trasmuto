@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { create } from 'zustand';
+import { openPath } from '@tauri-apps/plugin-opener';
 import type { ConversionJob } from '../lib/types';
 import {
   cancelConversion,
@@ -10,6 +11,7 @@ import {
   probeFile,
   takePendingJobStarts,
 } from '../lib/tauri-commands';
+import { useSettingsStore } from './useConversionSettings';
 
 interface JobQueueStore {
   jobs: ConversionJob[];
@@ -78,6 +80,12 @@ export function useJobQueue() {
 
       onConversionComplete(({ jobId, outputPath }) => {
         upsert(jobId, { status: 'done', outputPath });
+        const { settings } = useSettingsStore.getState();
+        const { jobs } = useJobQueueStore.getState();
+        const anyRunning = jobs.some((j) => j.id !== jobId && j.status === 'running');
+        if (settings.openAfterConversion && outputPath && !anyRunning) {
+          openPath(outputPath).catch(() => {});
+        }
       }),
 
       onConversionError(({ jobId, error }) => {

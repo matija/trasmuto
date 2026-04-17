@@ -19,6 +19,7 @@ const defaultSettings: ConversionSettings = {
   audioCodec: 'aac',
   audioBitrate: 128,
   ffmpegPath: null,
+  openAfterConversion: false,
 };
 
 describe('tauri-commands', () => {

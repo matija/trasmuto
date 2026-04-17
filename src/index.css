@@ -72,15 +72,6 @@
   }
 }
 
-@layer utilities {
-  .drag {
-    -webkit-app-region: drag;
-  }
-  .no-drag {
-    -webkit-app-region: no-drag;
-  }
-}
-
 @keyframes progress-slide {
   0% {
     transform: translateX(-200%);

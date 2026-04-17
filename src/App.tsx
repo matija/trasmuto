@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import JobQueue from './components/JobQueue';
 import SettingsPanel from './components/SettingsPanel';
 import { convertFile } from './lib/tauri-commands';
@@ -76,18 +77,38 @@ export default function App() {
 
   return (
     <div className="relative flex flex-col h-screen text-[color:var(--fg)] select-none overflow-hidden">
-      {/* Draggable title bar — traffic-light area + tab switcher */}
-      <div className="drag flex items-center justify-center h-10 shrink-0 relative border-b border-[color:var(--divider)]">
-        <div className="no-drag">
-          <Segmented
-            value={tab}
-            onChange={setTab}
-            options={[
-              { value: 'queue', label: 'Queue' },
-              { value: 'settings', label: 'Settings' },
-            ]}
-          />
-        </div>
+      {/* Draggable title bar.
+
+          We use an explicit `onMouseDown` → `startDragging()` handler rather
+          than the CSS `-webkit-app-region: drag` property or even Tauri's
+          `data-tauri-drag-region` attribute, both of which are unreliable on
+          macOS transparent windows in Tauri v2.
+
+          The handler only fires when the mousedown target is the title-bar
+          div itself (i.e. empty space around the Segmented control). Clicks
+          on the Segmented wrapper or its buttons are ignored because those
+          elements are the event target, not the title bar. Double-click is
+          forwarded to `toggleMaximize()` to match native titlebar behavior. */}
+      <div
+        onMouseDown={(e) => {
+          if (e.button !== 0) return;
+          if (e.target !== e.currentTarget) return;
+          if (e.detail === 2) {
+            void getCurrentWindow().toggleMaximize();
+          } else {
+            void getCurrentWindow().startDragging();
+          }
+        }}
+        className="flex items-center justify-center h-10 shrink-0 relative border-b border-[color:var(--divider)]"
+      >
+        <Segmented
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'queue', label: 'Queue' },
+            { value: 'settings', label: 'Settings' },
+          ]}
+        />
       </div>
 
       {/* Main content */}

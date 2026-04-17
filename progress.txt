@@ -1,3 +1,21 @@
+## PRD: Working DMG Release via CI
+
+## Phase 1 — Diagnose (DONE)
+
+- Checked the two most recent `release.yml` workflow runs via `gh run list`
+- Run 24536491152 (tag v0.1.0, workflow_dispatch): build compiled successfully but failed at bundle time
+- Failure: `security: SecKeychainItemImport: One or more parameters passed to a function were not valid`
+- Root cause: `tauri-action@v0` attempted to import a signing keychain because `APPLE_CERTIFICATE` env var was passed (resolves to empty string when secret is unset), which caused `security import` to fail
+- The release was never created (draft or otherwise) because the bundle step errored before tauri-action could create it
+
+## Phase 2 — Fix the release workflow (DONE)
+
+- Removed all Apple code-signing env vars (`APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID`) from `release.yml`
+- Code signing is a non-goal per the PRD; passing empty secrets was causing tauri-action to attempt and fail keychain import
+- Without those env vars, tauri-action will produce an unsigned `.app` and `.dmg` — which is the desired output
+
+---
+
 ## Phase 1 — Scaffold (DONE)
 
 - Scaffolded Tauri v2 + React 19 + TypeScript project using create-tauri-app

@@ -1,5 +1,28 @@
 ## PRD v3: UI Polish
 
+## Task 6 — Native-Style Settings Panel (DONE)
+
+### 6.1 Section Groups
+- Two inset grouped cards: `OUTPUT` and `BEHAVIOR`, each with a `rounded-xl bg-[--bg-raised]` container
+- 10px ALL-CAPS `tracking-widest` section label above each group
+
+### 6.2 Row Layout
+- Full-width rows with `px-4 py-2.5`; label left (`13px font-medium --fg`), optional description below (`11px --fg-muted`), control right-aligned
+- Hairline `--divider` between rows via `.settings-group > .settings-row:not(:last-child)` CSS sibling rule
+- Wide variant (CRF slider, ffmpeg path) stacks control below the label
+
+### 6.3 Controls
+- **Toggle**: pure-CSS pill (28×17 px, accent thumb, 150 ms transition) replaces the checkbox for "Open file when done"
+- **CustomSelect**: button + popover styled as NSMenu (`rounded-lg`, shadow, `13px` rows with `8px` vertical padding, accent color for selected row) replaces all native `<select>` elements
+- **Text input** (ffmpeg path): `height: 22px`, `rounded-md`, inset border
+
+### 6.4 Scrolling
+- Settings scroll container uses `scrollbar-width: none` + `::-webkit-scrollbar { display: none }` via `.settings-scroll` class
+- Added `-webkit-overflow-scrolling: touch`
+
+### Tests
+- All 13 frontend tests pass; `tsc --noEmit` clean
+
 ## Task 5 — Reduced Window Transparency (DONE)
 
 ### 5.1 Window Material

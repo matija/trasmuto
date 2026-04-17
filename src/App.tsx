@@ -99,7 +99,7 @@ export default function App() {
             void getCurrentWindow().startDragging();
           }
         }}
-        className="flex items-center justify-center h-10 shrink-0 relative border-b border-[color:var(--divider)]"
+        className="flex items-center justify-center h-9 shrink-0 relative bg-[color:var(--bg-raised)] border-b border-[color:var(--divider)]"
       >
         <Segmented
           value={tab}
@@ -132,17 +132,18 @@ function Segmented<T extends string>({
   options: { value: T; label: string }[];
 }) {
   return (
-    <div className="inline-flex items-center p-[2px] rounded-full bg-[color:var(--segmented-bg)] text-[13px] leading-none">
+    <div className="inline-flex items-center p-[2px] rounded-full bg-[color:var(--bg-base)] text-[12px] leading-none" style={{ height: 22 }}>
       {options.map((o) => (
         <button
           key={o.value}
           onClick={() => onChange(o.value)}
           className={[
-            'px-3 py-1 rounded-full transition-colors font-medium',
+            'px-3 rounded-full transition-colors duration-[120ms] font-medium tracking-[0.02em] leading-none flex items-center',
             value === o.value
-              ? 'bg-[color:var(--segmented-active-bg)] text-[color:var(--fg)] shadow-[0_0_0_0.5px_var(--segmented-active-border),0_1px_1px_rgba(0,0,0,0.08)]'
+              ? 'bg-[color:var(--accent-bg)] text-[color:var(--accent)]'
               : 'text-[color:var(--fg-muted)] hover:text-[color:var(--fg)]',
           ].join(' ')}
+          style={{ height: 18 }}
         >
           {o.label}
         </button>

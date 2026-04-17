@@ -1,5 +1,29 @@
 ## PRD v3: UI Polish
 
+## Task 3 — Auto-Open on Completion (DONE)
+
+### 3.1 Setting
+- Added `open_after_conversion: bool` (default: `false`) to `ConversionSettings` in `models.rs`
+- Added `openAfterConversion: boolean` to TypeScript `ConversionSettings` in `types.ts`
+- Added `openAfterConversion: false` to `DEFAULT_SETTINGS` in `useConversionSettings.ts`
+- Exported `useSettingsStore` from `useConversionSettings.ts` so job queue can read setting reactively
+
+### 3.2 Behavior
+- In `useJobQueue.ts`, `onConversionComplete` callback: reads `settings.openAfterConversion` and current job list from stores
+- Calls `openPath(outputPath)` via `@tauri-apps/plugin-opener` only when: setting is enabled, `outputPath` is valid, and no other job is still running
+- Uses `useJobQueueStore.getState()` / `useSettingsStore.getState()` to avoid stale closures
+
+### 3.3 Manual Reveal
+- Renamed "Reveal" button to "Show in Finder" in `JobItem.tsx`
+
+### UI
+- Added "Open file when done" checkbox toggle at the bottom of `SettingsPanel.tsx`
+
+### Tests
+- Updated all test fixtures to include `openAfterConversion: false`
+- Updated `JobItem.test.tsx` assertion to match new "Show in Finder" label
+- All 13 frontend tests pass; clippy clean
+
 ## Task 2 — Improved Drop Experience (DONE)
 
 ### 2.1 Drop Overlay

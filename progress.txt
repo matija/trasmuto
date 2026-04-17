@@ -1,5 +1,18 @@
 ## PRD v3: UI Polish
 
+## Task 2 — Improved Drop Experience (DONE)
+
+### 2.1 Drop Overlay
+- Film-strip SVG icon replaces the upload arrow
+- Border changed from dashed to solid with pulsing glow animation (`drop-pulse` keyframe, 1.6s ease-in-out infinite)
+- Fade-in (100ms ease-out) on enter, fade-out (80ms ease-in) on leave via `overlay-in`/`overlay-out` keyframes
+- Count-aware label: "Drop 2 videos to convert" for multi-file drags, "Drop to convert" for single
+- Drag state refactored: `dragActive` + `dragExiting` + `dragCount`; exit timer clears correctly on re-enter and unmount
+
+### 2.2 Post-Drop Feedback
+- `JobItem` outer div gets `animate-job-enter` class: translateY +6px → 0, opacity 0 → 1, 150ms ease-out on mount
+- 16×16 film-strip SVG placeholder icon added to the left of the filename
+
 ## Task 1 — Default Window Size (DONE)
 
 - Updated `src-tauri/tauri.conf.json`: width 600→480, height 500→400

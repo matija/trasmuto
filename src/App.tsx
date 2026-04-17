@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import JobQueue from './components/JobQueue';
@@ -19,7 +19,10 @@ function isSupportedVideo(path: string): boolean {
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('queue');
-  const [dragOver, setDragOver] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [dragExiting, setDragExiting] = useState(false);
+  const [dragCount, setDragCount] = useState(0);
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { settings, loaded } = useConversionSettings();
 
   // Switch to queue tab when files arrive via dock drop.
@@ -39,17 +42,24 @@ export default function App() {
   useEffect(() => {
     if (!loaded) return;
 
+    const startExit = () => {
+      setDragActive(false);
+      setDragExiting(true);
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+      exitTimerRef.current = setTimeout(() => setDragExiting(false), 80);
+    };
+
     const reg = getCurrentWebview().onDragDropEvent((event) => {
       const p = event.payload;
-      if (p.type === 'enter' || p.type === 'over') {
-        if (p.type === 'enter') {
-          const hasVideo = p.paths.some(isSupportedVideo);
-          setDragOver(hasVideo);
-        }
+      if (p.type === 'enter') {
+        if (exitTimerRef.current) { clearTimeout(exitTimerRef.current); exitTimerRef.current = null; }
+        setDragExiting(false);
+        const count = p.paths.filter(isSupportedVideo).length;
+        if (count > 0) { setDragCount(count); setDragActive(true); }
       } else if (p.type === 'leave') {
-        setDragOver(false);
+        startExit();
       } else if (p.type === 'drop') {
-        setDragOver(false);
+        startExit();
         setTab('queue');
         const videos = p.paths.filter(isSupportedVideo);
         for (const path of videos) {
@@ -59,6 +69,7 @@ export default function App() {
     });
 
     return () => {
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
       reg.then((fn) => fn()).catch(() => {});
     };
   }, [loaded, settings]);
@@ -85,7 +96,7 @@ export default function App() {
       </div>
 
       {/* Drag-drop overlay */}
-      {dragOver && <DropOverlay />}
+      {(dragActive || dragExiting) && <DropOverlay count={dragCount} exiting={dragExiting} />}
     </div>
   );
 }
@@ -119,10 +130,14 @@ function Segmented<T extends string>({
   );
 }
 
-function DropOverlay() {
+function DropOverlay({ count, exiting }: { count: number; exiting: boolean }) {
+  const label = count > 1 ? `Drop ${count} videos to convert` : 'Drop to convert';
   return (
-    <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center p-3">
-      <div className="w-full h-full rounded-[10px] border-2 border-dashed border-[color:var(--accent)] bg-[color:var(--accent-bg)] flex flex-col items-center justify-center gap-2">
+    <div
+      className={`pointer-events-none absolute inset-0 z-50 flex items-center justify-center p-3 ${exiting ? 'animate-overlay-out' : 'animate-overlay-in'}`}
+    >
+      <div className="w-full h-full rounded-[10px] border-2 border-[color:var(--accent)] bg-[color:var(--accent-bg)] flex flex-col items-center justify-center gap-2 animate-drop-pulse">
+        {/* Film-strip icon */}
         <svg
           width="36"
           height="36"
@@ -134,11 +149,17 @@ function DropOverlay() {
           strokeLinejoin="round"
           className="text-[color:var(--accent)]"
         >
-          <path d="M12 3v12" />
-          <path d="m7 8 5-5 5 5" />
-          <path d="M5 21h14" />
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <line x1="7" y1="4" x2="7" y2="20" />
+          <line x1="17" y1="4" x2="17" y2="20" />
+          <line x1="2" y1="8" x2="7" y2="8" />
+          <line x1="17" y1="8" x2="22" y2="8" />
+          <line x1="2" y1="12" x2="7" y2="12" />
+          <line x1="17" y1="12" x2="22" y2="12" />
+          <line x1="2" y1="16" x2="7" y2="16" />
+          <line x1="17" y1="16" x2="22" y2="16" />
         </svg>
-        <p className="text-sm font-medium text-[color:var(--fg)]">Drop to convert</p>
+        <p className="text-sm font-medium text-[color:var(--fg)]">{label}</p>
       </div>
     </div>
   );

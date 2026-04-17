@@ -1,16 +1,18 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Native macOS color tokens.  The window itself is transparent and the Rust
-   side applies the `Sidebar` vibrancy material, so the body is see-through
-   and these tokens only carry the thin on-top layer (text, dividers, chrome).
-   They follow the system light/dark appearance automatically.
+   Native macOS color tokens.  The window is transparent and the Rust side
+   applies the `Sidebar` vibrancy material; the CSS background layer sits on
+   top with high opacity (≥ 0.92) so the window reads as a solid surface with
+   only a subtle depth cue — not a frosted-glass pane.
 --------------------------------------------------------------------------- */
 
 :root {
   color-scheme: light dark;
 
   /* Light mode (default) */
+  --bg-base: rgba(246, 246, 248, 0.96);
+  --bg-raised: rgba(255, 255, 255, 0.94);
   --fg: rgba(0, 0, 0, 0.85);
   --fg-muted: rgba(0, 0, 0, 0.55);
   --fg-faint: rgba(0, 0, 0, 0.35);
@@ -33,6 +35,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --bg-base: rgba(28, 28, 30, 0.96);
+    --bg-raised: rgba(44, 44, 46, 0.95);
     --fg: rgba(255, 255, 255, 0.9);
     --fg-muted: rgba(255, 255, 255, 0.55);
     --fg-faint: rgba(255, 255, 255, 0.35);
@@ -64,8 +68,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     color: var(--fg);
-    /* Fully transparent so macOS vibrancy (Sidebar material) shines through. */
-    background: transparent;
+    background: var(--bg-base);
   }
 }
 

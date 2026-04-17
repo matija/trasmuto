@@ -1,118 +1,96 @@
-# PRD: Harden CI/CD — Build, Package, and GitHub Release
+# PRD: Working DMG Release via CI
 
-## Overview
-
-Extend the existing CI and release workflows so that every push to `main` produces a verified macOS binary, and every semver tag publishes a proper GitHub Release with downloadable artifacts visible on the project's Releases tab.
-
----
-
-## Goals
-
-1. CI (on every push/PR) runs a full build — not just typecheck/lint/test — to catch packaging regressions early.
-2. A tagged commit (`vX.Y.Z`) triggers a release workflow that:
-   - Compiles a production macOS binary (`.dmg` / `.app`).
-   - Creates a GitHub Release with the binary attached as a downloadable asset.
-   - Marks the release as published (not draft) so it appears on the Releases tab immediately.
-3. Pre-release tags (`v*-alpha`, `v*-beta`, `v*-rc`) are marked as pre-release on GitHub automatically.
-4. The release workflow fails loudly and leaves no partial/orphaned release on error.
+> The previous PRD (CI/CD hardening) is superseded by this document. Its goals were
+> declared done but the end-to-end release pipeline was never verified — no downloadable
+> binary exists on GitHub Releases. This PRD picks up from that gap.
 
 ---
 
-## Non-Goals
+## Goal
 
-- Windows or Linux builds (out of scope for now).
-- Auto-notarisation / Apple Developer certificate signing (nice-to-have later; unsigned builds are acceptable for now).
-- Automatic version bumping or changelog generation.
+Push a version tag → CI builds a macOS `.dmg` → the `.dmg` appears as a downloadable
+asset on the GitHub Releases tab → anyone can download and open it.
 
----
-
-## Current State
-
-| Workflow | File | Gap |
-|----------|------|-----|
-| `CI` | `.github/workflows/ci.yml` | Runs typecheck, lint, tests, clippy — **no binary build step** |
-| `Release` | `.github/workflows/release.yml` | Triggered by `v*.*.*` tags; uses `tauri-apps/tauri-action@v0` — functional but untested end-to-end; no CI build gate before release |
+**Done means:** you can run `gh release download vX.Y.Z` (or click the asset link on
+GitHub) and get a `.dmg` file that mounts and contains a working `Trasmuto.app`.
+No phase or task is complete until this download test passes for an asset produced by
+that phase's changes.
 
 ---
 
-## Requirements
+## What exists today
 
-### R1 — CI: Add a binary build step
+- `ci.yml` — runs lint, typecheck, tests, clippy, and `tauri build --target
+  aarch64-apple-darwin` on every push to main and every PR.
+- `ci.yml` (tag job) — after CI passes on main, reads the version from
+  `tauri.conf.json` and pushes a semver tag if it does not already exist.
+- `release.yml` — triggers on `v*.*.*` tags; uses `tauri-apps/tauri-action@v0` to
+  build and publish a GitHub Release.
+- Current version in `tauri.conf.json` and `Cargo.toml`: `0.1.0`.
 
-The CI job (runs on `push` to `main` and on PRs) must include a step that invokes `tauri build` after the existing test/lint steps.  
-The compiled artifact does **not** need to be uploaded; the goal is to catch build failures before they reach the release workflow.
-
-Acceptance criteria:
-- `ci.yml` has a final step that runs `npx tauri build` (or equivalent).
-- CI fails if `tauri build` exits non-zero.
-- Build artifacts are not uploaded to save storage (use `--no-bundle` if faster, but the full bundle at minimum on `main` pushes).
-
-### R2 — Release: Version consistency check
-
-Before building, the release workflow must verify that the git tag matches the version declared in `src-tauri/tauri.conf.json` (the `version` field) and `src-tauri/Cargo.toml`.  
-A mismatch should fail the workflow with a clear error message before any build work is done.
-
-Acceptance criteria:
-- A bash step extracts the version from `tauri.conf.json` and `Cargo.toml` and compares to `github.ref_name`.
-- Mismatch exits 1 with a human-readable message like `Tag v1.2.0 does not match app version 1.1.0`.
-
-### R3 — Release: Produce a macOS binary and attach to GitHub Release
-
-The release workflow must build a `.dmg` (or `.app` in a `.zip`) and attach it to the GitHub Release using `tauri-apps/tauri-action`.  
-The release must be published (not draft) on success.
-
-Acceptance criteria:
-- After a successful tag push, the GitHub Releases tab shows a release named `Trasmuto vX.Y.Z`.
-- The release has at least one downloadable asset (`.dmg` preferred).
-- The release body includes the tag name and a note directing users to the assets section.
-
-### R4 — Release: Pre-release detection
-
-Tags matching `v*-alpha.*`, `v*-beta.*`, or `v*-rc.*` are published as GitHub pre-releases.  
-All other `vX.Y.Z` tags are published as stable releases.
-
-Acceptance criteria:
-- The existing `Detect prerelease` step logic is preserved and wired into `tauri-action`'s `prerelease` input.
-
-### R5 — Release: Clean failure handling
-
-If any step fails after the GitHub Release object has been created, the release must be converted to draft (not deleted) so it can be inspected and manually cleaned up.
-
-Acceptance criteria:
-- The existing `Mark release draft on failure` step is retained and runs on `failure()`.
-- The step does not itself fail if the release does not yet exist (the `|| true` guard is preserved).
-
-### R6 — CI gate before release
-
-The release workflow must not begin the tauri build until CI has passed on the same commit.  
-Use a GitHub Actions dependency (`needs:` or a separate required status check) or document the manual process if full automation is deferred.
-
-Acceptance criteria (option A — automated):
-- Release workflow declares `needs: [ci]` referencing a reusable CI job, or triggers only after the `CI` workflow succeeds via `workflow_run`.
-
-Acceptance criteria (option B — deferred):
-- A branch protection rule on `main` requiring the `ci` status check is documented in this PRD as a manual repo setup step, and a note is left in `release.yml` explaining the dependency.
+No release assets have ever been verified as downloadable. The release workflow may be
+failing silently, producing a draft, missing the DMG asset, or not running at all.
 
 ---
 
-## Implementation Phases
+## Phase 1 — Diagnose: find out exactly what breaks
 
-### Phase 1 — CI binary build (R1)
-Add `tauri build` step to `ci.yml`. Use `--target aarch64-apple-darwin` to match the release target. Cache Rust artifacts via `swatinem/rust-cache`.
+Read the most recent release workflow run logs on GitHub Actions. Identify the first
+failing step (or confirm it never ran). Document findings as a comment on this file or
+a commit message before moving to Phase 2.
 
-### Phase 2 — Version consistency check (R2)
-Add a bash step to `release.yml` that parses `tauri.conf.json` and `Cargo.toml`, extracts versions, and asserts they match `${{ github.ref_name }}` (stripping the leading `v`).
+Likely suspects:
+- `tauri-apps/tauri-action@v0` is old — may be broken against current Tauri 2.x.
+- The tag job on `ci.yml` may be failing to push the tag (PAT_TOKEN permissions).
+- `targets: "all"` in `tauri.conf.json` may be attempting to build formats that fail on
+  the runner (e.g. Windows targets on macOS).
+- Missing system library (e.g. ffmpeg) that the app links against.
+- The release is created as draft and never published.
 
-### Phase 3 — Verify GitHub Release publication (R3, R4, R5)
-Smoke-test the existing `tauri-apps/tauri-action` setup by cutting a test tag. Fix any issues found. Confirm release appears on the Releases tab with a `.dmg` asset. Confirm pre-release tags show the pre-release badge.
-
-### Phase 4 — CI gate (R6) — DONE (Option B)
-Option B implemented: a branch protection rule on `main` requiring the `ci` status check is documented in `README.md` under the "Releasing" section as a manual one-time repo setup step. A `NOTE:` comment in `release.yml` explains the dependency and why tag pushes from `main` are safe without an inline CI job.
+**Phase 1 done when:** the failure point is identified and written down.
+Verification: not applicable (diagnosis only).
 
 ---
 
-## Open Questions
+## Phase 2 — Fix the release workflow
 
-1. Should CI skip the full `tauri build` on PRs (expensive) and only run it on `main` pushes? A matrix strategy could split this.
-2. Is unsigned `.dmg` acceptable long-term, or should we plan Apple notarisation in the next PRD?
-3. For the CI gate (R6), is `workflow_run` acceptable latency, or do we prefer branch protection rules?
+Based on Phase 1 findings, fix `release.yml` so the workflow completes without error
+and attaches a `.dmg` asset to the release.
+
+Likely changes:
+- Upgrade `tauri-apps/tauri-action` to a version compatible with Tauri 2.x (check the
+  action's releases page for the current stable tag).
+- Ensure `releaseDraft: false` is honoured — the release must be published, not draft.
+- Install any missing system dependencies (e.g. `brew install ffmpeg`) before the build
+  step if the binary links against them.
+- Scope `targets` in `tauri.conf.json` to `["dmg"]` or `["app", "dmg"]` to avoid
+  attempting cross-platform bundles.
+- If the tag job is the blocker, verify `PAT_TOKEN` is set in repo secrets and has
+  `contents: write` on the target repo.
+
+**Phase 2 done when:** `gh release download vX.Y.Z --pattern "*.dmg"` succeeds and
+produces a file whose `file` output is `Mach-O` or `zlib compressed data` (a valid
+DMG). Run this command locally and confirm the DMG mounts.
+
+---
+
+## Phase 3 — Smoke test the full push-to-download flow
+
+Bump the version to `0.2.0` in `tauri.conf.json` and `Cargo.toml`, merge to main, and
+let the auto-tag job push `v0.2.0`. Do not push the tag manually. Wait for the full
+pipeline to complete end-to-end.
+
+**Phase 3 done when:**
+1. The tag `v0.2.0` appears on GitHub (pushed by the CI tag job, not manually).
+2. The Release workflow run for `v0.2.0` shows green in GitHub Actions.
+3. `gh release download v0.2.0 --pattern "*.dmg"` produces a valid DMG.
+4. The DMG mounts on macOS and `Trasmuto.app` launches.
+
+---
+
+## Non-goals (for this PRD)
+
+- Apple notarisation / code signing.
+- Windows or Linux builds.
+- Auto-changelog generation.
+- Automatic version bump PRs.

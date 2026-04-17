@@ -76,17 +76,20 @@ pub fn run() {
         .expect("error while building tauri application")
         .run(|app, event| {
             if let tauri::RunEvent::Opened { urls } = event {
+                // Always show/focus the window — even if no supported files were
+                // found — so a non-video drop doesn't leave the app invisible.
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                }
+
                 let paths = extract_supported_paths(&urls);
                 if paths.is_empty() {
                     return;
                 }
 
-                // Show and focus the window so the user sees progress immediately.
+                // Nudge the frontend to switch to the Queue tab.
                 if let Some(window) = app.get_webview_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
-                    // Nudge the frontend to switch to the Queue tab (buffered
-                    // in PendingJobStarts anyway, so losing this is harmless).
                     let _ = window.emit("file-opened", &paths);
                 }
 

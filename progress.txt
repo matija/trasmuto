@@ -1,5 +1,20 @@
 ## PRD v4: Dock Drop, Compact Window, Completion Actions
 
+## Task — Dock-Icon Drop (DONE)
+
+### Infrastructure (from Phase 3, verified complete)
+- `fileAssociations` in tauri.conf.json registers app for all 11 video extensions
+- `RunEvent::Opened` handler in lib.rs: shows window, filters supported extensions, calls `dispatch_conversion` per file
+- `dispatch_conversion` in convert.rs: shared helper used by both window-drop (via `convert_file` command) and dock-drop paths
+- `PendingJobStarts` buffer + `take_pending_job_starts` command: cold-launch race condition handled — jobs started before React mounts are drained on `useJobQueue` init
+- `file-opened` event switches frontend to queue tab
+
+### Fix applied this task
+- Non-video dock drop (e.g. `.txt`): window now shows/focuses before the early return, so the app becomes visible even when no valid files were queued (PRD §1.5)
+
+### Tests
+- `cargo clippy -- -D warnings` clean
+
 ## Task — Compact, Intricate Window (DONE)
 
 ### Window Size

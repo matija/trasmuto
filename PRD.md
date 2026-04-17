@@ -100,6 +100,59 @@ Regardless of the auto-open setting, the "Reveal" button on a completed `JobItem
 
 ---
 
+## 5. Reduced Window Transparency
+
+The current vibrancy/transparency effect makes the app feel lighter than native macOS utilities. This task makes the window feel more solid and grounded — closer to how Apple's own apps (e.g. Finder, Notes, System Settings) appear.
+
+### 5.1 Window Material
+
+- Change the Tauri window material from the current ultra-light blur (e.g. `ultraThin` / `hudWindow`) to `sidebar` or `windowBackground`.
+- If a custom `NSVisualEffectView` is configured in Rust, update the `material` enum value accordingly.
+- The goal: the window background should read as an opaque dark/light surface with only a subtle depth cue, not a frosted-glass pane.
+
+### 5.2 CSS Background Fallback
+
+- Update the root CSS custom properties so the fallback (non-vibrancy) background color matches the intended opacity — use `rgba` values with alpha ≥ 0.92 instead of the current semi-transparent values.
+- Ensure `--bg-base` and `--bg-raised` remain visually consistent whether or not the OS is providing the blur layer.
+
+### 5.3 Title Bar
+
+- If the title bar has its own vibrancy layer (e.g. a separate `NSVisualEffectView`), apply the same material change.
+- Subtle separator line between title bar and content area should remain; it adds depth without transparency.
+
+---
+
+## 6. Native-Style Settings Panel
+
+The Settings tab should feel like it belongs in macOS System Settings rather than a generic web form. Key visual principles: grouped sections with inset list styling, system font sizing, and standard control heights.
+
+### 6.1 Section Groups
+
+- Wrap each logical group of settings (e.g. output, behavior) in a visually distinct "inset grouped" card — a rounded rectangle (`rounded-xl`) with a slightly lighter/raised background (`--bg-raised`), matching the macOS settings list pattern.
+- Each group has an optional small ALL-CAPS section label (`10px`, `--fg-muted`, `tracking-widest`) above it, e.g. `OUTPUT`, `BEHAVIOR`.
+
+### 6.2 Row Layout
+
+Each setting row follows a strict template:
+- Full-width row with `px-4 py-2.5` padding.
+- Label on the left (`13px`, `font-medium`, `--fg-primary`).
+- Optional description below the label (`11px`, `--fg-muted`).
+- Control (toggle, select, or button) right-aligned.
+- Thin hairline divider (`1px`, `--border`) between rows — **not** on the last row in a group.
+
+### 6.3 Controls
+
+- **Toggles**: use a pill toggle styled to match macOS (28 × 17 px, accent-color thumb, smooth 150 ms transition). No third-party library — implement in CSS.
+- **Select / Dropdown**: replace `<select>` with a custom button that shows the current value and a chevron-down icon. On click, open a small popover list styled like an `NSMenu` — dark/light adaptive, `rounded-lg`, subtle shadow, `13px` rows with `8px` vertical padding.
+- **Text/Number inputs**: `height: 22px`, `rounded-md`, inset border, matches macOS text field height.
+
+### 6.4 Scrolling
+
+- If the settings list exceeds the panel height, the section groups scroll as a unit; the panel title ("Settings") stays fixed.
+- Use `-webkit-overflow-scrolling: touch` and hide the scrollbar on macOS (`scrollbar-width: none` + `::-webkit-scrollbar { display: none }`).
+
+---
+
 ## Out of Scope for This Phase
 
 - Real video thumbnail extraction.
@@ -115,4 +168,6 @@ Regardless of the auto-open setting, the "Reveal" button on a completed `JobItem
 2. Dropping a video shows the polished animated overlay with correct copy and icon.
 3. `openAfterConversion` setting persists, and when enabled, the output file opens automatically on completion.
 4. All listed typography, spacing, and badge changes are applied.
-5. `cargo clippy -- -D warnings`, `tsc --noEmit`, and `npm run test` all pass.
+5. Window material is `sidebar` or `windowBackground`; CSS background alpha is ≥ 0.92; the window reads as solid at a glance.
+6. Settings panel uses inset grouped sections, proper row template, native-style toggle and custom select, and matches macOS System Settings visual language.
+7. `cargo clippy -- -D warnings`, `tsc --noEmit`, and `npm run test` all pass.

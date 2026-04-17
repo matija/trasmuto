@@ -101,6 +101,16 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes job-remove {
+  from { max-height: 200px; opacity: 1; padding-top: 10px; padding-bottom: 10px; }
+  to { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
+}
+
+@keyframes action-row-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @layer utilities {
   .animate-progress-indeterminate {
     width: 40%;
@@ -117,6 +127,13 @@
   }
   .animate-job-enter {
     animation: job-enter 150ms ease-out forwards;
+  }
+  .animate-job-remove {
+    animation: job-remove 200ms ease forwards;
+    overflow: hidden;
+  }
+  .animate-action-row-in {
+    animation: action-row-in 150ms ease-in forwards;
   }
 }
 

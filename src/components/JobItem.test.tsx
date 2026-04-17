@@ -4,6 +4,11 @@ import type { ConversionJob } from '../lib/types';
 
 vi.mock('@tauri-apps/plugin-opener', () => ({
   revealItemInDir: vi.fn(),
+  openPath: vi.fn(),
+}));
+
+vi.mock('../lib/tauri-commands', () => ({
+  trashFile: vi.fn(),
 }));
 
 const baseJob: ConversionJob = {
@@ -19,7 +24,7 @@ const baseJob: ConversionJob = {
 
 describe('JobItem', () => {
   it('renders filename, progress bar, speed, and cancel button for a running job', () => {
-    render(<JobItem job={baseJob} onCancel={vi.fn()} />);
+    render(<JobItem job={baseJob} onCancel={vi.fn()} onRemove={vi.fn()} />);
 
     expect(screen.getByText('sample.mkv')).toBeInTheDocument();
     expect(screen.getByText(/1\.8/)).toBeInTheDocument();
@@ -30,16 +35,17 @@ describe('JobItem', () => {
     expect(progressBar).not.toBeNull();
   });
 
-  it('renders completion indicator and Reveal button for a done job', () => {
+  it('renders Play and Delete buttons for a done job', () => {
     const doneJob: ConversionJob = {
       ...baseJob,
       status: 'done',
       outputPath: '/videos/sample.mp4',
     };
 
-    render(<JobItem job={doneJob} onCancel={vi.fn()} />);
+    render(<JobItem job={doneJob} onCancel={vi.fn()} onRemove={vi.fn()} />);
 
-    expect(screen.getByText('Done')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /show in finder/i })).toBeInTheDocument();
+    expect(screen.getByText('sample.mkv')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
   });
 });

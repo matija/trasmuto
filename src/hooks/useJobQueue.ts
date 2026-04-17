@@ -18,6 +18,7 @@ interface JobQueueStore {
   upsert: (id: string, patch: Partial<ConversionJob>) => void;
   markCancelled: (id: string) => void;
   clearDone: () => void;
+  removeJob: (id: string) => void;
 }
 
 const useJobQueueStore = create<JobQueueStore>((set) => ({
@@ -58,10 +59,13 @@ const useJobQueueStore = create<JobQueueStore>((set) => ({
         (j) => j.status === 'running' || j.status === 'pending'
       ),
     })),
+
+  removeJob: (id) =>
+    set((state) => ({ jobs: state.jobs.filter((j) => j.id !== id) })),
 }));
 
 export function useJobQueue() {
-  const { jobs, upsert, markCancelled, clearDone } = useJobQueueStore();
+  const { jobs, upsert, markCancelled, clearDone, removeJob } = useJobQueueStore();
 
   useEffect(() => {
     const applyStart = (jobId: string, inputPath: string) => {
@@ -115,5 +119,5 @@ export function useJobQueue() {
     markCancelled(id);
   };
 
-  return { jobs, clearDone, cancelJob };
+  return { jobs, clearDone, cancelJob, removeJob };
 }

@@ -22,6 +22,9 @@ export const saveSettings = (settings: ConversionSettings): Promise<void> =>
 export const takePendingJobStarts = (): Promise<JobStartedPayload[]> =>
   invoke('take_pending_job_starts');
 
+export const trashFile = (path: string): Promise<void> =>
+  invoke('trash_file', { path });
+
 // --- Event payload types ---
 
 export interface ProgressPayload {

@@ -2,7 +2,7 @@ import { useJobQueue } from '../hooks/useJobQueue';
 import JobItem from './JobItem';
 
 export default function JobQueue() {
-  const { jobs, clearDone, cancelJob } = useJobQueue();
+  const { jobs, clearDone, cancelJob, removeJob } = useJobQueue();
 
   const hasDone = jobs.some(
     (j) => j.status === 'done' || j.status === 'failed' || j.status === 'cancelled'
@@ -40,7 +40,7 @@ export default function JobQueue() {
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-3 pt-2 pb-3">
         {jobs.map((job) => (
-          <JobItem key={job.id} job={job} onCancel={cancelJob} />
+          <JobItem key={job.id} job={job} onCancel={cancelJob} onRemove={removeJob} />
         ))}
       </div>
       {hasDone && (

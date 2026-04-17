@@ -292,6 +292,13 @@ pub async fn cancel_conversion(
     Ok(())
 }
 
+/// Move a file to the macOS Trash.  Returns an error string if the file is
+/// missing or the OS refuses the move (e.g. permissions).
+#[tauri::command]
+pub async fn trash_file(path: String) -> Result<(), String> {
+    trash::delete(&path).map_err(|e| e.to_string())
+}
+
 /// Drains any buffered `job-started` events.  Called by the frontend on mount
 /// to catch up on jobs dispatched before its listeners were attached (notably
 /// dock-icon drops that cold-launch the app).

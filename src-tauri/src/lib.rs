@@ -4,7 +4,7 @@ pub mod models;
 
 use commands::{
     cancel_conversion, convert_file, dispatch_conversion, get_ffmpeg_path, get_settings,
-    load_settings, probe_file, save_settings, take_pending_job_starts, ActiveJobs,
+    load_settings, probe_file, save_settings, take_pending_job_starts, trash_file, ActiveJobs,
     PendingJobStarts,
 };
 use tauri::{Emitter, Manager};
@@ -49,6 +49,7 @@ pub fn run() {
             save_settings,
             get_ffmpeg_path,
             take_pending_job_starts,
+            trash_file,
         ])
         .setup(|app| {
             // Request macOS notification permission on first launch.

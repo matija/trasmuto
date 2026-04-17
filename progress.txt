@@ -4,6 +4,9 @@
 
 - Bumped version to 0.2.0 in src-tauri/tauri.conf.json and src-tauri/Cargo.toml; updated Cargo.lock
 - Committed to main; CI tag job will push v0.2.0 after CI passes
+- Tag push was failing with 403: PAT_TOKEN secret was not set; fixed by switching to github.token (GITHUB_TOKEN with contents:write permission)
+- Committed fix: fix(ci): use github.token for tag push instead of missing PAT_TOKEN (7bd8cff)
+- Pushed to main; CI will now retry the tag job and push v0.2.0
 - Waiting for: v0.2.0 tag to appear, release.yml to go green, DMG asset to be downloadable
 - Verification: `gh release download v0.2.0 --pattern "*.dmg"` + mount on macOS
 

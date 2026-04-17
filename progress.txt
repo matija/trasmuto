@@ -1,3 +1,32 @@
+## PRD v4: Dock Drop, Compact Window, Completion Actions
+
+## Task — Compact, Intricate Window (DONE)
+
+### Window Size
+- Updated tauri.conf.json: width 480→400, height 400→320, minWidth 360→340, minHeight 320→260
+
+### Title Bar
+- Height reduced to 36 px (h-9); background set to `--bg-raised` to create two-surface contrast
+- Segmented control remains in title bar row (already there from v3)
+
+### Segmented Control ("Instrument Panel" style)
+- Container: 22 px height, `rounded-full`, background `--bg-base` (inset from `--bg-raised` title bar)
+- Active pill: `--accent-bg` fill + `--accent` text (120 ms ease); no shadow/glow
+- Labels: 12 px, `font-medium`, `tracking-[0.02em]`
+
+### Empty State
+- Removed accent-colored circle wrapper; bare 36×36 icon in `--fg-muted` at 40% opacity
+- Headline: 13 px, `font-medium`, `--fg`. "Drop a video to convert."
+- Subtext: 11 px, `--fg-muted`. "Or drag onto the dock icon."
+- Layout: `gap-1.5`, centered
+
+### Content Area
+- JobQueue scroll container: `px-3 pt-2 pb-3` (deliberate slight bottom-heaviness per PRD §2.2)
+- JobItem: removed `mx-1`, reduced to `px-2 py-2.5`
+
+### Tests
+- All 13 frontend tests pass; `tsc --noEmit` clean
+
 ## PRD v3: UI Polish
 
 ## Task 6 — Native-Style Settings Panel (DONE)

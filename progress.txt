@@ -1,5 +1,21 @@
 ## PRD v3: UI Polish
 
+## Task 5 — Reduced Window Transparency (DONE)
+
+### 5.1 Window Material
+- Already using `WindowEffect::Sidebar` in lib.rs — no Rust change needed
+
+### 5.2 CSS Background Fallback
+- Added `--bg-base` (light: `rgba(246,246,248,0.96)`, dark: `rgba(28,28,30,0.96)`)
+- Added `--bg-raised` (light: `rgba(255,255,255,0.94)`, dark: `rgba(44,44,46,0.95)`)
+- Body background changed from `transparent` to `var(--bg-base)`; window now reads as a solid surface
+
+### 5.3 Title Bar
+- Added `border-b border-[color:var(--divider)]` to the title bar div for a subtle separator
+
+### Tests
+- All 13 frontend tests pass; `tsc --noEmit` clean
+
 ## Task 4 — General UI Polish (DONE)
 
 ### 4.1 Typography

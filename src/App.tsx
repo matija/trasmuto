@@ -77,7 +77,7 @@ export default function App() {
   return (
     <div className="relative flex flex-col h-screen text-[color:var(--fg)] select-none overflow-hidden">
       {/* Draggable title bar — traffic-light area + tab switcher */}
-      <div className="drag flex items-center justify-center h-10 shrink-0 relative">
+      <div className="drag flex items-center justify-center h-10 shrink-0 relative border-b border-[color:var(--divider)]">
         <div className="no-drag">
           <Segmented
             value={tab}

@@ -1,5 +1,7 @@
 # Trasmuto — PRD v2: Quality, Testing & Automated Releases
 
+> **DEPRECATED** — All goals in this PRD are complete as of v0.2.0. Superseded by [PRD v3: UI Polish](./PRD_v3_ui_polish.md).
+
 ## Context
 
 The initial feature set (dock drop, conversion pipeline, settings UI, job queue, notifications) is complete. This document defines the next phase: hardening the codebase through test coverage, removing dead weight, and establishing a CI/CD pipeline that automatically publishes a macOS DMG on every release tag push.

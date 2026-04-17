@@ -57,6 +57,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # actions:write is required so the final step can call
+      # `gh workflow run release.yml` — the default GITHUB_TOKEN also does
+      # not fire cascading workflows from a tag push, so a dispatch is the
+      # only reliable way to kick off the release build.
+      actions: write
     steps:
       - uses: actions/checkout@v4
         with:

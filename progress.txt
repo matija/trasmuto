@@ -1,5 +1,12 @@
 ## PRD: Working DMG Release via CI
 
+## Phase 3 — Smoke test full push-to-download flow (IN PROGRESS)
+
+- Bumped version to 0.2.0 in src-tauri/tauri.conf.json and src-tauri/Cargo.toml; updated Cargo.lock
+- Committed to main; CI tag job will push v0.2.0 after CI passes
+- Waiting for: v0.2.0 tag to appear, release.yml to go green, DMG asset to be downloadable
+- Verification: `gh release download v0.2.0 --pattern "*.dmg"` + mount on macOS
+
 ## Phase 1 — Diagnose (DONE)
 
 - Checked the two most recent `release.yml` workflow runs via `gh run list`
